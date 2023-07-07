@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @SpringBootApplication
-public class FlightConnections {
+class FlightConnections {
     @GetMapping("route")
-    public Object route(@RequestParam("src") String src, @RequestParam("dst") String dst) {
+    Object route(@RequestParam("src") String src, @RequestParam("dst") String dst) {
         return "Not implemented yet";
     }
 
