@@ -1,4 +1,4 @@
-package antivoland.transporeon.domain;
+package antivoland.transporeon.model;
 
 import lombok.EqualsAndHashCode;
 

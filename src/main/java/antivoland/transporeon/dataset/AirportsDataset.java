@@ -1,16 +1,15 @@
 package antivoland.transporeon.dataset;
 
-import antivoland.transporeon.domain.Airport;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
-import static antivoland.transporeon.domain.Code.code;
+import static antivoland.transporeon.model.Code.code;
 
 @Component
-public class AirportsDataset implements Dataset<Airport> {
+public class AirportsDataset implements Dataset<Dataset.Airport> {
     private static final int IATA_CODE = 4;
     private static final int ICAO_CODE = 5;
     private static final int LAT = 6;
