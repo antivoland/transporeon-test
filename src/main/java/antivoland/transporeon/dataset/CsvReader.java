@@ -1,4 +1,4 @@
-package antivoland.transporeon;
+package antivoland.transporeon.dataset;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
