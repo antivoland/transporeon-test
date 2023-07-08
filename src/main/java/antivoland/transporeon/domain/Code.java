@@ -2,6 +2,8 @@ package antivoland.transporeon.domain;
 
 import lombok.EqualsAndHashCode;
 
+import static java.lang.String.format;
+
 @EqualsAndHashCode
 public class Code {
     public enum Type {IATA, ICAO}
@@ -12,6 +14,11 @@ public class Code {
     private Code(Type type, String value) {
         this.type = type;
         this.value = value.toUpperCase();
+    }
+
+    @Override
+    public String toString() {
+        return format("%s(%s)", type, value);
     }
 
     public static Code code(String value) {
