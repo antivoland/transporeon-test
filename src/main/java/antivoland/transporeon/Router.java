@@ -3,7 +3,7 @@ package antivoland.transporeon;
 import antivoland.transporeon.dataset.AirportsDataset;
 import antivoland.transporeon.dataset.RoutesDataset;
 import antivoland.transporeon.domain.Airport;
-import antivoland.transporeon.domain.code.Code;
+import antivoland.transporeon.domain.Code;
 import com.google.common.graph.MutableValueGraph;
 import com.google.common.graph.ValueGraphBuilder;
 import org.springframework.beans.factory.annotation.Autowired;

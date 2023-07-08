@@ -1,6 +1,5 @@
 package antivoland.transporeon.domain;
 
-import antivoland.transporeon.domain.code.Code;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 

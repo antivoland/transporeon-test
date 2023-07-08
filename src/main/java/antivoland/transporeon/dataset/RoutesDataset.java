@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
-import static antivoland.transporeon.domain.code.Code.code;
+import static antivoland.transporeon.domain.Code.code;
 
 @Component
 public class RoutesDataset implements Dataset<Route> {
