@@ -28,9 +28,9 @@ I've found suitable [datasets](https://openflights.org/data.html) at openflights
   * **Airline**, 2-letter (IATA) or 3-letter (ICAO) code of the airline
   * **Airline ID**, unique OpenFlights identifier for airline (see Airline)
   * **Source airport**, 3-letter (IATA) or 4-letter (ICAO) code of the source airport
-  * **Source airport ID**, Unique OpenFlights identifier for source airport (see Airport)
+  * **Source airport ID**, Unique OpenFlights identifier for source airport
   * **Destination airport**, 3-letter (IATA) or 4-letter (ICAO) code of the destination airport
-  * **Destination airport ID**, unique OpenFlights identifier for destination airport (see Airport)
+  * **Destination airport ID**, unique OpenFlights identifier for destination airport
   * **Codeshare**, "Y" if this flight is a codeshare (that is, not operated by Airline, but another carrier), empty otherwise
   * **Stops**, number of stops on this flight ("0" for direct)
   * **Equipment**, 3-letter codes for plane type(s) generally used on this flight, separated by spaces

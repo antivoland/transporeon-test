@@ -1,1 +1,5 @@
 server.port: 8080
+
+datasets:
+  airports: classpath:data/airports.dat
+  routes: classpath:data/routes.dat
