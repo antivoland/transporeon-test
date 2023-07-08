@@ -1,4 +1,4 @@
-package antivoland.transporeon.code;
+package antivoland.transporeon.domain.code;
 
 class ICAOCode extends Code {
     ICAOCode(String value) {

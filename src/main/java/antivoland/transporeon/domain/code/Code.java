@@ -1,5 +1,8 @@
-package antivoland.transporeon.code;
+package antivoland.transporeon.domain.code;
 
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode
 public class Code {
     public final CodeType type;
     public final String value;
