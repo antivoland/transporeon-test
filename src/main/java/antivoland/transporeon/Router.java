@@ -15,16 +15,19 @@ import org.gavaghan.geodesy.GlobalCoordinates;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
 
 @Component
 @SuppressWarnings("UnstableApiUsage")
 class Router {
+    private static final double MAX_GROUND_CROSSING_DISTANCE_KM = 100;
     private static final GeodeticCalculator GEODETIC_CALCULATOR = new GeodeticCalculator();
 
-    private final Map<Integer, Spot> spots = new HashMap<>();
+    private final List<Spot> spots = new ArrayList<>();
     private final Map<Code, Integer> codeMapper = new HashMap<>();
     private final RouteFinder routeFinder;
 
@@ -32,17 +35,28 @@ class Router {
     Router(AirportsDataset airportsDataset, RoutesDataset routesDataset) {
         MutableValueGraph<Integer, Double> routes = ValueGraphBuilder.directed().allowsSelfLoops(false).build();
 
-        final AtomicInteger nextId = new AtomicInteger(0);
         airportsDataset
                 .read()
                 .map(Dataset.Airport::spot)
                 .filter(spot -> !spot.codes.isEmpty())
                 .forEach(spot -> {
-                    int id = nextId.incrementAndGet();
-                    spots.put(id, spot);
+                    int id = spots.size();
+                    spots.add(spot);
                     routes.addNode(id);
                     spot.codes.forEach(code -> codeMapper.put(code, id));
                 });
+
+        long start = System.currentTimeMillis();
+        final AtomicInteger ops = new AtomicInteger();
+        for (int srcId = 0; srcId < spots.size(); ++srcId) {
+            for (int dstId = srcId + 1; dstId < spots.size(); ++dstId) {
+                if (kmDistance(srcId, dstId) < MAX_GROUND_CROSSING_DISTANCE_KM) {
+                    System.out.printf("");
+                }
+                ops.incrementAndGet();
+            }
+        }
+        System.out.println((System.currentTimeMillis()-start)/1000);
 
         routesDataset
                 .read()
@@ -59,6 +73,42 @@ class Router {
                 });
 
         routeFinder = new RouteFinder(spots, routes);
+
+        var minLon = spots.stream().map(s -> s.lon).min(Double::compareTo);
+        var maxLon = spots.stream().map(s -> s.lon).max(Double::compareTo);
+        var minLat = spots.stream().map(s -> s.lat).min(Double::compareTo);
+        var maxLat = spots.stream().map(s -> s.lat).max(Double::compareTo);
+
+        var groups = spots
+                .stream()
+                .collect(groupingBy(Group::new, counting()));
+
+        var groupsByLat = spots
+                .stream()
+                .collect(groupingBy(g -> (int) g.lat, TreeMap::new, counting()));
+        var sumNorth75 = groupsByLat.entrySet().stream().filter(s -> s.getKey() >= 75).mapToLong(s -> s.getValue()).sum();
+        var sumBetween = groupsByLat.entrySet().stream().filter(s -> s.getKey() > -75 && s.getKey() < 75).mapToLong(s -> s.getValue()).sum();
+        var sumSouth75 = groupsByLat.entrySet().stream().filter(s -> s.getKey() <= -75).mapToLong(s -> s.getValue()).sum();
+        System.out.printf("");
+
+    }
+
+    class Group {
+        int intLat;
+        int intLon;
+
+        Group(Spot spot) {
+            intLat = (int) spot.lat;
+            intLon = (int) spot.lon;
+        }
+
+        @Override
+        public String toString() {
+            return "Group{" +
+                    "intLat=" + intLat +
+                    ", intLon=" + intLon +
+                    '}';
+        }
     }
 
     Route findShortestRoute(Code srcCode, Code dstCode) {

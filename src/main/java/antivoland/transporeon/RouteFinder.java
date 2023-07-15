@@ -5,16 +5,17 @@ import antivoland.transporeon.model.route.Route;
 import com.google.common.graph.ValueGraph;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("UnstableApiUsage")
 class RouteFinder {
     private static final int MAX_STOPS = 3;
 
-    private final Map<Integer, Spot> spots;
+    private final List<Spot> spots;
     private final ValueGraph<Integer, Double> routes;
 
-    RouteFinder(Map<Integer, Spot> spots, ValueGraph<Integer, Double> routes) {
+    RouteFinder(List<Spot> spots, ValueGraph<Integer, Double> routes) {
         this.spots = spots;
         this.routes = routes;
     }
