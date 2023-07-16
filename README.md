@@ -37,11 +37,11 @@ I've found suitable [datasets](https://openflights.org/data.html) at openflights
 
 These datasets are widely used, [here](https://www.kaggle.com/datasets/elmoallistair/airlines-airport-and-routes?select=airports.csv) and [here](https://www.kaggle.com/datasets/elmoallistair/airlines-airport-and-routes?select=routes.csv) you'll find some stats for each field.
 
-## Sectors
+## Segmentation
 
 Calculating the distance between two points is a rather expensive operation. For a dataset of more than 7000 airports, a brute force method to determine all ground routes between airports within a radius of 100 km can take a minute. This is a bit annoying as I would also like to use datasets not only at runtime but also in tests. 
 
-So let's split the Earth into sectors as follows:
+So let's split the Earth into segments as follows:
 
 ![Sectors](sectors.png)
 
