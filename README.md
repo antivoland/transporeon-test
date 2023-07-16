@@ -39,7 +39,7 @@ These datasets are widely used, [here](https://www.kaggle.com/datasets/elmoallis
 
 ## Segmentation
 
-Calculating the distance between two points is a rather expensive operation. For a dataset of more than 7000 airports, a brute force method to determine all ground routes between airports within a radius of 100 km can take a minute. This is a bit annoying as I would also like to use datasets not only at runtime but also in tests. 
+Calculating the distance between two points is a rather expensive operation. For a dataset of more than 7000 airports, a brute force method to determine all ground routes between airports within a radius of 100 km can take a minute (or about 5 seconds for the parallel processing). This is a bit annoying as I would also like to use datasets not only at runtime but also in tests.
 
 So let's split the Earth into segments as follows:
 
