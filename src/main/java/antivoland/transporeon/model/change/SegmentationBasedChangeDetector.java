@@ -8,14 +8,13 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static antivoland.transporeon.model.DistanceCalculator.kmDistance;
 
-public class SegmentationBasedChangeDetector extends ChangeDetector {
+public class SegmentationBasedChangeDetector implements ChangeDetector {
     @Override
-    Set<Change> detect(List<Spot> spots, double kmMaxDistance, AtomicInteger numberOfDistanceCalculations) {
-        Segmentation segmentation = new Segmentation(numberOfDistanceCalculations);
+    public Set<Change> detect(List<Spot> spots, double kmMaxDistance) {
+        Segmentation segmentation = new Segmentation();
         spots.forEach(spot -> segmentation.segmentFor(spot.lat, spot.lon).spots.add(spot));
 
         Set<Change> changes = new HashSet<>();
@@ -28,7 +27,6 @@ public class SegmentationBasedChangeDetector extends ChangeDetector {
                     if (kmDistance(src, dst) < kmMaxDistance) {
                         changes.add(new Change(src.id, dst.id));
                         changes.add(new Change(dst.id, src.id));
-                        numberOfDistanceCalculations.incrementAndGet();
                     }
                 }
                 env.forEach(envSegment -> {

@@ -9,7 +9,6 @@ import antivoland.transporeon.model.segmentation.slice.SouthPoleSlice;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.stream.IntStream.range;
 
@@ -17,19 +16,13 @@ public class Segmentation {
     private static final int POLE_SIZE_DEGREES = 15;
 
     private final List<Slice<? extends Segment>> slices = new ArrayList<>();
-    private final AtomicInteger numberOfDistanceCalculations;
 
     public Segmentation() {
-        this(new AtomicInteger());
-    }
-
-    public Segmentation(AtomicInteger numberOfDistanceCalculations) {
         slices.add(new SouthPoleSlice(-90, -90 + POLE_SIZE_DEGREES, this));
         range(-90 + POLE_SIZE_DEGREES, 90 - POLE_SIZE_DEGREES)
                 .mapToObj(southernmostLat -> new RegularSlice(southernmostLat, southernmostLat + 1, this))
                 .forEach(slices::add);
         slices.add(new NorthPoleSlice(90 - POLE_SIZE_DEGREES, 90, this));
-        this.numberOfDistanceCalculations = numberOfDistanceCalculations;
     }
 
     public Segment segmentFor(double lat, double lon) {

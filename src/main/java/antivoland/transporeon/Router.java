@@ -4,6 +4,7 @@ import antivoland.transporeon.dataset.AirportsDataset;
 import antivoland.transporeon.dataset.RoutesDataset;
 import antivoland.transporeon.model.Code;
 import antivoland.transporeon.model.Spot;
+import antivoland.transporeon.model.change.SegmentationBasedChangeDetector;
 import antivoland.transporeon.model.route.Route;
 import com.google.common.graph.MutableValueGraph;
 import com.google.common.graph.ValueGraphBuilder;
@@ -37,6 +38,12 @@ class Router {
                     spots.add(new Spot(id, airport.lat, airport.lon));
                     routes.addNode(id);
                     airport.codes().forEach(code -> codeMapper.put(code, id));
+                });
+
+        new SegmentationBasedChangeDetector()
+                .detect(spots, MAX_GROUND_CROSSING_DISTANCE_KM)
+                .forEach(change -> {
+                    // todo: register ground changes
                 });
 
         routesDataset

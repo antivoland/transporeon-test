@@ -6,16 +6,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static antivoland.transporeon.model.DistanceCalculator.kmDistance;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.IntStream.range;
 
-public class BruteForceChangeDetector extends ChangeDetector {
-
+public class BruteForceChangeDetector implements ChangeDetector {
     @Override
-    Set<Change> detect(List<Spot> spots, double kmMaxDistance, AtomicInteger numberOfDistanceCalculations) {
+    public Set<Change> detect(List<Spot> spots, double kmMaxDistance) {
         return range(0, spots.size())
                 .parallel()
                 .mapToObj(srcIdx -> {
@@ -26,7 +24,6 @@ public class BruteForceChangeDetector extends ChangeDetector {
                         if (kmDistance(src, dst) < kmMaxDistance) {
                             batch.add(new Change(src.id, dst.id));
                             batch.add(new Change(dst.id, src.id));
-                            numberOfDistanceCalculations.incrementAndGet();
                         }
                     }
                     return batch;
