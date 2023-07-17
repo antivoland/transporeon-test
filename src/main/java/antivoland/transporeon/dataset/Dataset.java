@@ -1,9 +1,9 @@
 package antivoland.transporeon.dataset;
 
 import antivoland.transporeon.model.Code;
-import antivoland.transporeon.model.Spot;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +13,7 @@ public interface Dataset<E> {
     Stream<E> read();
 
     @Builder
+    @ToString
     @EqualsAndHashCode
     class Airport {
         public final Code iataCode;
@@ -20,11 +21,7 @@ public interface Dataset<E> {
         public final double lat;
         public final double lon;
 
-        public Spot spot() {
-            return new Spot(codes(), lat, lon);
-        }
-
-        private List<Code> codes() {
+        public List<Code> codes() {
             List<Code> codes = new ArrayList<>();
             if (iataCode != null) codes.add(iataCode);
             if (icaoCode != null) codes.add(icaoCode);
@@ -33,6 +30,7 @@ public interface Dataset<E> {
     }
 
     @Builder
+    @ToString
     @EqualsAndHashCode
     class Route {
         public final Code srcAirportCode;

@@ -1,7 +1,6 @@
 package antivoland.transporeon;
 
 import antivoland.transporeon.dataset.AirportsDataset;
-import antivoland.transporeon.dataset.Dataset;
 import antivoland.transporeon.dataset.RoutesDataset;
 import antivoland.transporeon.model.Code;
 import antivoland.transporeon.model.Spot;
@@ -12,11 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
 
 import static antivoland.transporeon.model.DistanceCalculator.kmDistance;
-import static java.lang.String.format;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
 
@@ -35,37 +31,13 @@ class Router {
 
         airportsDataset
                 .read()
-                .map(Dataset.Airport::spot)
-                .filter(spot -> !spot.codes.isEmpty())
-                .forEach(spot -> {
+                .filter(spairport -> !spairport.codes().isEmpty())
+                .forEach(airport -> {
                     int id = spots.size();
-                    spots.add(spot);
+                    spots.add(new Spot(id, airport.lat, airport.lon));
                     routes.addNode(id);
-                    spot.codes.forEach(code -> codeMapper.put(code, id));
+                    airport.codes().forEach(code -> codeMapper.put(code, id));
                 });
-
-        long start = System.currentTimeMillis();
-        final AtomicInteger roads = new AtomicInteger();
-        final AtomicInteger ops = new AtomicInteger();
-//        for (int srcId = 0; srcId < spots.size(); ++srcId) {
-//            for (int dstId = srcId + 1; dstId < spots.size(); ++dstId) {
-//                if (kmDistance(spots.get(srcId), spots.get(dstId)) < MAX_GROUND_CROSSING_DISTANCE_KM) {
-//                    roads.incrementAndGet();
-//                }
-//                ops.incrementAndGet();
-//            }
-//        }
-        IntStream.range(0, spots.size()).parallel().forEach(srcId -> {
-            for (int dstId = srcId + 1; dstId < spots.size(); ++dstId) {
-                if (kmDistance(spots.get(srcId), spots.get(dstId)) < MAX_GROUND_CROSSING_DISTANCE_KM) {
-                    roads.addAndGet(2);
-                }
-                ops.incrementAndGet();
-            }
-        });
-        System.out.printf("ops=%s, roads=%s, duration=%sms%n", ops, roads, System.currentTimeMillis() - start);
-        // non-parallel: ops=29618056, roads=18373, duration=42000ms
-        // parallel: ops=29618056, roads=18373, duration=5193ms
 
         routesDataset
                 .read()
