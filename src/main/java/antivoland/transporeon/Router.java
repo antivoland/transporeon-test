@@ -55,14 +55,14 @@ class Router {
 //                ops.incrementAndGet();
 //            }
 //        }
-//        IntStream.range(0, spots.size()).parallel().forEach(srcId -> {
-//            for (int dstId = srcId + 1; dstId < spots.size(); ++dstId) {
-//                if (kmDistance(spots.get(srcId), spots.get(dstId)) < MAX_GROUND_CROSSING_DISTANCE_KM) {
-//                    roads.incrementAndGet();
-//                }
-//                ops.incrementAndGet();
-//            }
-//        });
+        IntStream.range(0, spots.size()).parallel().forEach(srcId -> {
+            for (int dstId = srcId + 1; dstId < spots.size(); ++dstId) {
+                if (kmDistance(spots.get(srcId), spots.get(dstId)) < MAX_GROUND_CROSSING_DISTANCE_KM) {
+                    roads.addAndGet(2);
+                }
+                ops.incrementAndGet();
+            }
+        });
         System.out.printf("ops=%s, roads=%s, duration=%sms%n", ops, roads, System.currentTimeMillis() - start);
         // non-parallel: ops=29618056, roads=18373, duration=42000ms
         // parallel: ops=29618056, roads=18373, duration=5193ms
