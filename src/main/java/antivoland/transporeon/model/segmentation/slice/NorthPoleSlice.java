@@ -19,7 +19,7 @@ public class NorthPoleSlice extends Slice<NorthPoleSegment> {
     }
 
     @Override
-    public Collection<NorthPoleSegment> segments() {
+    protected Collection<NorthPoleSegment> segments() {
         return List.of(segment);
     }
 

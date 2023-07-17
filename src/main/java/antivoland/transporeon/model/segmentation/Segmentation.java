@@ -54,8 +54,8 @@ public class Segmentation {
     public Collection<? extends Segment> segments() {
         return slices
                 .stream()
-                .flatMap(slice -> slice.segments().stream())
-                .filter(segment -> !segment.spots.isEmpty())
+                .map(Slice::nonEmptySegments)
+                .flatMap(Collection::stream)
                 .toList();
     }
 }

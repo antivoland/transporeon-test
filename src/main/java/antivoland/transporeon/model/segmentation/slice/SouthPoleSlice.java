@@ -19,7 +19,7 @@ public class SouthPoleSlice extends Slice<SouthPoleSegment> {
     }
 
     @Override
-    public Collection<SouthPoleSegment> segments() {
+    protected Collection<SouthPoleSegment> segments() {
         return List.of(segment);
     }
 

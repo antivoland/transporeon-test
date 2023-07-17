@@ -28,7 +28,14 @@ public abstract class Slice<SEGMENT extends Segment> {
 
     public abstract SEGMENT segmentFor(int lon);
 
-    public abstract Collection<SEGMENT> segments();
+    protected abstract Collection<SEGMENT> segments();
+
+    public final Collection<SEGMENT> nonEmptySegments() {
+        return segments()
+                .stream()
+                .filter(segment -> !segment.spots.isEmpty())
+                .toList();
+    }
 
     public final Collection<Slice<?>> southernSlices(double kmDelta) {
         if (type == SliceType.SOUTH_POLE) return List.of();

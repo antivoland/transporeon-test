@@ -27,7 +27,7 @@ public class RegularSlice extends Slice<RegularSegment> {
     }
 
     @Override
-    public Collection<RegularSegment> segments() {
+    protected Collection<RegularSegment> segments() {
         return segments.values();
     }
 

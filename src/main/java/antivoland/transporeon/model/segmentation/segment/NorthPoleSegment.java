@@ -15,7 +15,7 @@ public class NorthPoleSegment extends PoleSegment {
     @Override
     public Collection<Segment> environment(double kmDelta) {
         Collection<Segment> segments = new ArrayList<>();
-        slice.southernSlices(kmDelta).forEach(slice -> segments.addAll(slice.segments()));
+        slice.southernSlices(kmDelta).forEach(slice -> segments.addAll(slice.nonEmptySegments()));
         return segments;
     }
 
