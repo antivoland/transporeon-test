@@ -53,6 +53,7 @@ public class RegularSegment extends Segment {
         return segments;
     }
 
+    // todo: precalculate
     private double kmDistanceToSameSliceWesternSegment(RegularSegment segment) {
         return Math.min(
                 kmDistance(slice.southernmostLat, westernmostLon, slice.southernmostLat, segment.easternmostLon),
@@ -72,6 +73,7 @@ public class RegularSegment extends Segment {
         return segments;
     }
 
+    // todo: precalculate
     private double kmDistanceToSameSliceEasternSegment(RegularSegment segment) {
         return Math.min(
                 kmDistance(slice.southernmostLat, easternmostLon, slice.southernmostLat, segment.westernmostLon),

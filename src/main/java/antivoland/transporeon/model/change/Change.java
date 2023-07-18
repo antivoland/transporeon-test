@@ -8,6 +8,6 @@ import lombok.ToString;
 @EqualsAndHashCode
 @AllArgsConstructor
 public class Change {
-    final int srcId;
-    final int dstId;
+    public final int srcId;
+    public final int dstId;
 }

@@ -52,6 +52,7 @@ public abstract class Slice<SEGMENT extends Segment> {
         return slices;
     }
 
+    // todo: precalculate
     private double kmDistanceToSouthernSlice(Slice<?> slice) {
         return kmDistance(southernmostLat, 0, slice.northernmostLat, 0);
     }
@@ -70,6 +71,7 @@ public abstract class Slice<SEGMENT extends Segment> {
         return slices;
     }
 
+    // todo: precalculate
     private double kmDistanceToNorthernSlice(Slice<?> slice) {
         return kmDistance(northernmostLat, 0, slice.southernmostLat, 0);
     }

@@ -13,4 +13,9 @@ public class Stop implements Fragment {
     public double kmDistance() {
         return 0;
     }
+
+    @Override
+    public boolean isFlight() {
+        return false;
+    }
 }

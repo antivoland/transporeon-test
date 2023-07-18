@@ -5,6 +5,8 @@ import antivoland.transporeon.dataset.RoutesDataset;
 import antivoland.transporeon.model.Code;
 import antivoland.transporeon.model.Spot;
 import antivoland.transporeon.model.change.SegmentationBasedChangeDetector;
+import antivoland.transporeon.model.graph.Edge;
+import antivoland.transporeon.model.graph.EdgeType;
 import antivoland.transporeon.model.route.Route;
 import com.google.common.graph.MutableValueGraph;
 import com.google.common.graph.ValueGraphBuilder;
@@ -28,7 +30,7 @@ class Router {
 
     @Autowired
     Router(AirportsDataset airportsDataset, RoutesDataset routesDataset) {
-        MutableValueGraph<Integer, Double> routes = ValueGraphBuilder.directed().allowsSelfLoops(false).build();
+        MutableValueGraph<Integer, Edge> routes = ValueGraphBuilder.directed().allowsSelfLoops(false).build();
 
         airportsDataset
                 .read()
@@ -43,7 +45,10 @@ class Router {
         new SegmentationBasedChangeDetector()
                 .detect(spots, MAX_GROUND_CROSSING_DISTANCE_KM)
                 .forEach(change -> {
-                    // todo: register ground changes
+                    Spot src = spots.get(change.srcId);
+                    Spot dst = spots.get(change.dstId);
+                    Edge val = new Edge(EdgeType.GROUND, kmDistance(src, dst));
+                    routes.putEdgeValue(src.id, dst.id, val);
                 });
 
         routesDataset
@@ -57,7 +62,10 @@ class Router {
                 .forEach(route -> {
                     int srcId = codeMapper.get(route.srcAirportCode);
                     int dstId = codeMapper.get(route.dstAirportCode);
-                    routes.putEdgeValue(srcId, dstId, kmDistance(spots.get(srcId), spots.get(dstId)));
+                    Spot src = spots.get(srcId);
+                    Spot dst = spots.get(dstId);
+                    Edge val = new Edge(EdgeType.AIR, kmDistance(src, dst));
+                    routes.putEdgeValue(srcId, dstId, val);
                 });
 
         routeFinder = new RouteFinder(spots, routes);
