@@ -5,8 +5,8 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public interface Dataset<E> {
@@ -21,8 +21,8 @@ public interface Dataset<E> {
         public final double lat;
         public final double lon;
 
-        public List<Code> codes() {
-            List<Code> codes = new ArrayList<>();
+        public Set<Code> codes() {
+            Set<Code> codes = new HashSet<>();
             if (iataCode != null) codes.add(iataCode);
             if (icaoCode != null) codes.add(icaoCode);
             return codes;

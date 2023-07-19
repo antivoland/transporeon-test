@@ -1,13 +1,13 @@
 package antivoland.transporeon.model.change;
 
+import antivoland.transporeon.model.Spot;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @ToString
-@EqualsAndHashCode
 @AllArgsConstructor
 public class Change {
-    public final int srcId;
-    public final int dstId;
+    public final Spot src;
+    public final Spot dst;
+    public final double kmDistance;
 }

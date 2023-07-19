@@ -1,35 +1,47 @@
 package antivoland.transporeon.model.route;
 
+import lombok.ToString;
+
+@ToString
 public class Route {
-    public final Fragment[] fragments;
+    public final Stop[] stops;
+    public final Move[] moves;
     public final double kmDistance;
-    public final int numberOfFlights;
 
     public Route(Stop src) {
-        this(new Fragment[]{src});
+        this(new Stop[]{src}, new Move[]{});
     }
 
-    private Route(Fragment[] fragments) {
-        this.fragments = fragments;
+    private Route(Stop[] stops, Move[] moves) {
+        this.stops = stops;
+        this.moves = moves;
         double kmDistance = 0;
-        int numberOfFlights = 0;
-        for (Fragment fragment : fragments) {
-            kmDistance += fragment.kmDistance();
-            if (fragment.isFlight()) ++numberOfFlights;
+        for (Move move : moves) {
+            kmDistance += move.kmDistance;
         }
         this.kmDistance = kmDistance;
-        this.numberOfFlights = numberOfFlights;
     }
 
-    public Stop lastStop() {
-        return (Stop) fragments[fragments.length - 1];
+    public int numberOfMoves(MoveType type) {
+        int numberOfMoves = 0;
+        for (Move move : moves) {
+            if (move.type == type) ++numberOfMoves;
+        }
+        return numberOfMoves;
     }
 
-    public Route add(Move move, Stop stop) {
-        Fragment[] newFragments = new Fragment[fragments.length + 2];
-        System.arraycopy(fragments, 0, newFragments, 0, fragments.length);
-        newFragments[fragments.length] = move;
-        newFragments[fragments.length + 1] = stop;
-        return new Route(newFragments);
+    public Stop dst() {
+        return stops[stops.length - 1];
+    }
+
+    public Route move(Move move, Stop stop) {
+        Stop[] newStops = new Stop[stops.length + 1];
+        System.arraycopy(stops, 0, newStops, 0, stops.length);
+        newStops[stops.length] = stop;
+
+        Move[] newMoves = new Move[moves.length + 1];
+        System.arraycopy(moves, 0, newMoves, 0, moves.length);
+        newMoves[moves.length + 1] = move;
+        return new Route(newStops, newMoves);
     }
 }

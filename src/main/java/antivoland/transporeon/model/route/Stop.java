@@ -1,21 +1,12 @@
 package antivoland.transporeon.model.route;
 
 import antivoland.transporeon.model.Spot;
+import lombok.AllArgsConstructor;
+import lombok.ToString;
 
-public class Stop implements Fragment {
+@ToString
+@AllArgsConstructor
+public class Stop {
+    public final StopType type;
     public final Spot spot;
-
-    public Stop(Spot spot) {
-        this.spot = spot;
-    }
-
-    @Override
-    public double kmDistance() {
-        return 0;
-    }
-
-    @Override
-    public boolean isFlight() {
-        return false;
-    }
 }

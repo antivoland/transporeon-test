@@ -5,15 +5,16 @@ import antivoland.transporeon.dataset.RoutesDataset;
 import antivoland.transporeon.model.Code;
 import antivoland.transporeon.model.Spot;
 import antivoland.transporeon.model.change.SegmentationBasedChangeDetector;
-import antivoland.transporeon.model.graph.Edge;
-import antivoland.transporeon.model.graph.EdgeType;
-import antivoland.transporeon.model.route.Route;
+import antivoland.transporeon.model.route.Move;
 import com.google.common.graph.MutableValueGraph;
 import com.google.common.graph.ValueGraphBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static antivoland.transporeon.model.DistanceCalculator.kmDistance;
 import static java.util.stream.Collectors.counting;
@@ -24,31 +25,38 @@ import static java.util.stream.Collectors.groupingBy;
 class Router {
     private static final double MAX_GROUND_CROSSING_DISTANCE_KM = 100;
 
-    private final List<Spot> spots = new ArrayList<>();
+    private final Map<Integer, Spot> spots = new HashMap<>();
     private final Map<Code, Integer> codeMapper = new HashMap<>();
     private final RouteFinder routeFinder;
 
     @Autowired
     Router(AirportsDataset airportsDataset, RoutesDataset routesDataset) {
-        MutableValueGraph<Integer, Edge> routes = ValueGraphBuilder.directed().allowsSelfLoops(false).build();
+        MutableValueGraph<Integer, Move> moves = ValueGraphBuilder.directed().allowsSelfLoops(false).build();
 
+        AtomicInteger id = new AtomicInteger(0);
         airportsDataset
                 .read()
-                .filter(spairport -> !spairport.codes().isEmpty())
-                .forEach(airport -> {
-                    int id = spots.size();
-                    spots.add(new Spot(id, airport.lat, airport.lon));
-                    routes.addNode(id);
-                    airport.codes().forEach(code -> codeMapper.put(code, id));
+                .map(airport -> Spot
+                        .builder()
+                        .id(id.incrementAndGet())
+                        .lat(airport.lat)
+                        .lon(airport.lon)
+                        .codes(airport.codes())
+                        .build())
+                .filter(spot -> !spot.codes.isEmpty())
+                .forEach(spot -> {
+                    spots.put(spot.id, spot);
+                    moves.addNode(spot.id);
+                    spot.codes.forEach(code -> codeMapper.put(code, spot.id));
                 });
 
         new SegmentationBasedChangeDetector()
-                .detect(spots, MAX_GROUND_CROSSING_DISTANCE_KM)
+                .detect(spots.values(), MAX_GROUND_CROSSING_DISTANCE_KM)
                 .forEach(change -> {
                     Spot src = spots.get(change.srcId);
                     Spot dst = spots.get(change.dstId);
-                    Edge val = new Edge(EdgeType.GROUND, kmDistance(src, dst));
-                    routes.putEdgeValue(src.id, dst.id, val);
+                    Move move = Move.byGround(kmDistance(src, dst));
+                    moves.putEdgeValue(src.id, dst.id, move);
                 });
 
         routesDataset
@@ -65,10 +73,10 @@ class Router {
                     Spot src = spots.get(srcId);
                     Spot dst = spots.get(dstId);
                     Edge val = new Edge(EdgeType.AIR, kmDistance(src, dst));
-                    routes.putEdgeValue(srcId, dstId, val);
+                    moves.putEdgeValue(srcId, dstId, val);
                 });
 
-        routeFinder = new RouteFinder(spots, routes);
+        routeFinder = new RouteFinder(spots, moves);
 
         var minLon = spots.stream().map(s -> s.lon).min(Double::compareTo);
         var maxLon = spots.stream().map(s -> s.lon).max(Double::compareTo);

@@ -6,14 +6,13 @@ import antivoland.transporeon.model.segmentation.segment.Segment;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static antivoland.transporeon.model.DistanceCalculator.kmDistance;
 
 public class SegmentationBasedChangeDetector implements ChangeDetector {
     @Override
-    public Set<Change> detect(List<Spot> spots, double kmMaxDistance) {
+    public Collection<Change> detect(Collection<Spot> spots, double kmMaxDistance) {
         Segmentation segmentation = new Segmentation();
         spots.forEach(spot -> segmentation.segmentFor(spot.lat, spot.lon).spots.add(spot));
 
@@ -24,16 +23,18 @@ public class SegmentationBasedChangeDetector implements ChangeDetector {
                 Spot src = segment.spots.get(srcIdx);
                 for (int dstIdx = srcIdx + 1; dstIdx < segment.spots.size(); ++dstIdx) {
                     Spot dst = segment.spots.get(dstIdx);
-                    if (kmDistance(src, dst) < kmMaxDistance) {
-                        changes.add(new Change(src.id, dst.id));
-                        changes.add(new Change(dst.id, src.id));
+                    double kmDistance = kmDistance(src, dst);
+                    if (kmDistance < kmMaxDistance) {
+                        changes.add(new Change(src, dst, kmDistance));
+                        changes.add(new Change(dst, src, kmDistance));
                     }
                 }
                 env.forEach(envSegment -> {
                     for (int dstIdx = 0; dstIdx < envSegment.spots.size(); ++dstIdx) {
                         Spot dst = envSegment.spots.get(dstIdx);
-                        if (kmDistance(src, dst) < kmMaxDistance) {
-                            changes.add(new Change(src.id, dst.id));
+                        double kmDistance = kmDistance(src, dst);
+                        if (kmDistance < kmMaxDistance) {
+                            changes.add(new Change(src, dst, kmDistance));
                         }
                     }
                 });

@@ -8,12 +8,8 @@ import org.gavaghan.geodesy.GlobalCoordinates;
 public class DistanceCalculator {
     private static final GeodeticCalculator GEODETIC_CALCULATOR = new GeodeticCalculator();
 
-    public static double kmDistance(Spot srcSpot, Spot dstSpot) {
-        return kmDistance(srcSpot.lat, srcSpot.lon, dstSpot.lat, dstSpot.lon);
-    }
-
-    public static double kmDistance(double[] srcLatLon, double[] dstLatLon) {
-        return kmDistance(srcLatLon[0], srcLatLon[1], dstLatLon[0], dstLatLon[1]);
+    public static double kmDistance(Spot src, Spot dst) {
+        return kmDistance(src.lat, src.lon, dst.lat, dst.lon);
     }
 
     public static double kmDistance(double srcLat, double srcLon, double dstLat, double dstLon) {

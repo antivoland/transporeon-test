@@ -7,7 +7,6 @@ import antivoland.transporeon.model.graph.Node;
 import antivoland.transporeon.model.graph.NodeType;
 import antivoland.transporeon.model.route.Move;
 import antivoland.transporeon.model.route.MoveType;
-import antivoland.transporeon.model.route.Route;
 import antivoland.transporeon.model.route.Stop;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.ValueGraph;
@@ -74,8 +73,8 @@ class RouteFinder {
                     Handle<Double, Route> handle = seen.get(node);
                     double distance = min.getValue().kmDistance + val.distance;
                     var newRoute = min.getValue().add(val.type == EdgeType.AIR
-                                    ? new Move(MoveType.AIR, val.distance)
-                                    : new Move(MoveType.GROUND, val.distance),
+                                    ? new Move(MoveType.BY_AIR, val.distance)
+                                    : new Move(MoveType.BY_GROUND, val.distance),
                             new Stop(spots.get(node.id)));
                     if (handle == null) {
                         handle = heap.insert(distance, newRoute);
