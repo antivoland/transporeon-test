@@ -1,6 +1,7 @@
 package antivoland.transporeon.dataset;
 
 import antivoland.transporeon.model.Code;
+import antivoland.transporeon.model.Spot;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -26,6 +27,10 @@ public interface Dataset<E> {
             if (iataCode != null) codes.add(iataCode);
             if (icaoCode != null) codes.add(icaoCode);
             return codes;
+        }
+
+        public Spot spot(int id) {
+            return new Spot(id, lat, lon, codes());
         }
     }
 

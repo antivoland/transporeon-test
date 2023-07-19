@@ -1,12 +1,8 @@
 package antivoland.transporeon;
 
 import antivoland.transporeon.model.Spot;
-import antivoland.transporeon.model.graph.Edge;
-import antivoland.transporeon.model.graph.EdgeType;
-import antivoland.transporeon.model.graph.Node;
-import antivoland.transporeon.model.graph.NodeType;
 import antivoland.transporeon.model.route.Move;
-import antivoland.transporeon.model.route.MoveType;
+import antivoland.transporeon.model.route.Route;
 import antivoland.transporeon.model.route.Stop;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.ValueGraph;
@@ -15,19 +11,18 @@ import org.jheaps.AddressableHeap.Handle;
 import org.jheaps.tree.FibonacciHeap;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("UnstableApiUsage")
 class RouteFinder {
-    private static final int MAX_STOPS = 3;
+    private static final int MAX_NUMBER_OF_FLIGHTS = 4;
 
-    private final List<Spot> spots;
-    private final ValueGraph<Integer, Edge> routes;
+    private final Map<Integer, Spot> spots; // todo: remove
+    private final ValueGraph<Integer, Move> moves;
 
-    RouteFinder(List<Spot> spots, ValueGraph<Integer, Edge> routes) {
+    RouteFinder(Map<Integer, Spot> spots, ValueGraph<Integer, Move> moves) {
         this.spots = spots;
-        this.routes = routes;
+        this.moves = moves;
     }
 
     /*
@@ -55,37 +50,33 @@ class RouteFinder {
 
          return dist, prev
      */
-    Route findShortest(Spot src, Spot dst) {
+    Route findShortestRoute(Spot src, Spot dst) {
         AddressableHeap<Double, Route> heap = new FibonacciHeap<>();
-        Map<Node, Handle<Double, Route>> seen = new HashMap<>();
-        Node srcNode = new Node(NodeType.SOURCE, src.id);
-        seen.put(srcNode, heap.insert(0d, new Route(new Stop(src))));
+        Map<Stop, Handle<Double, Route>> seen = new HashMap<>();
+        seen.put(Stop.first(src.id), heap.insert(0d, new Route(Stop.first(src.id))));
 
         Handle<Double, Route> min;
-        while ((min = heap.deleteMin()) != null /* todo: and min is dst */) {
-            int id = min.getValue().lastStop().spot.id;
-            for (EndpointPair<Integer> edge : routes.incidentEdges(id)) {
-                if (edge.source() == id) {
-                    Edge val = routes.edgeValue(edge).orElseThrow();
-                    Node node = val.type == EdgeType.AIR
-                            ? new Node(NodeType.ENTERED_BY_AIR, edge.target())
-                            : new Node(NodeType.ENTERED_BY_GROUND, edge.target());
-                    Handle<Double, Route> handle = seen.get(node);
-                    double distance = min.getValue().kmDistance + val.distance;
-                    var newRoute = min.getValue().add(val.type == EdgeType.AIR
-                                    ? new Move(MoveType.BY_AIR, val.distance)
-                                    : new Move(MoveType.BY_GROUND, val.distance),
-                            new Stop(spots.get(node.id)));
-                    if (handle == null) {
-                        handle = heap.insert(distance, newRoute);
-                        seen.put(node, handle);
-                    } else if (distance < handle.getKey()) {
-                        handle.decreaseKey(distance);
-                        handle.setValue(newRoute);
-                    }
+        while ((min = heap.deleteMin()) != null) {
+            Route route = min.getValue();
+            Stop stop = route.lastStop();
+            if (stop.spotId == dst.id) return route;
+            for (EndpointPair<Integer> edge : moves.incidentEdges(stop.spotId)) {
+                if (edge.source() != stop.spotId) continue;
+                Move move = moves.edgeValue(edge).orElseThrow();
+                Stop nextStop = Stop.enteredBy(move.type, edge.target());
+                if (!stop.canMoveTo(nextStop, move)) continue;
+                var nextStopRoute = route.moveTo(nextStop, move);
+                if (nextStopRoute.numberOfFlights() > MAX_NUMBER_OF_FLIGHTS) continue;
+                Handle<Double, Route> nextStopHandle = seen.get(nextStop);
+                if (nextStopHandle == null) {
+                    nextStopHandle = heap.insert(nextStopRoute.kmDistance, nextStopRoute);
+                    seen.put(nextStop, nextStopHandle);
+                } else if (nextStopRoute.kmDistance < nextStopHandle.getKey()) {
+                    nextStopHandle.decreaseKey(nextStopRoute.kmDistance);
+                    nextStopHandle.setValue(nextStopRoute);
                 }
             }
         }
-        throw new UnsupportedOperationException("Not implemented yet");
+        return null;
     }
 }
