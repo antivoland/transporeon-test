@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 import static antivoland.transporeon.model.Code.code;
 
 @Component
-public class RoutesDataset implements Dataset<Dataset.Route> {
+public class RouteDataset implements Dataset<Dataset.Route> {
     private static final int SRC_AIRPORT_CODE = 2;
     private static final int DST_AIRPORT_CODE = 4;
     private static final int STOPS = 7;

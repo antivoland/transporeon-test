@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 import static antivoland.transporeon.model.Code.code;
 
 @Component
-public class AirportsDataset implements Dataset<Dataset.Airport> {
+public class AirportDataset implements Dataset<Dataset.Airport> {
     private static final int IATA_CODE = 4;
     private static final int ICAO_CODE = 5;
     private static final int LAT = 6;

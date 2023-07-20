@@ -1,6 +1,6 @@
 package antivoland.transporeon.model.change;
 
-import antivoland.transporeon.dataset.AirportsDataset;
+import antivoland.transporeon.dataset.AirportDataset;
 import antivoland.transporeon.model.Spot;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -27,12 +27,12 @@ public class ChangeDetectorTest {
     private static final double MAX_DISTANCE_KM = 100;
 
     @Autowired
-    AirportsDataset airportsDataset;
+    AirportDataset airportDataset;
 
     @Test
     void test() {
         AtomicInteger nextId = new AtomicInteger(0);
-        Map<Integer, Spot> spots = airportsDataset
+        Map<Integer, Spot> spots = airportDataset
                 .read()
                 .filter(airport -> !airport.codes().isEmpty())
                 .map(airport -> airport.spot(nextId.incrementAndGet()))

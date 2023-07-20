@@ -26,10 +26,14 @@ public class Route {
         this.kmDistance = kmDistance;
     }
 
-    public Route moveTo(Stop stop, Move move) {
+    public boolean canMove(Move move) {
+        return lastStop().type != StopType.ENTERED_BY_GROUND || move.type != MoveType.BY_GROUND;
+    }
+
+    public Route move(Move move) {
         Stop[] newStops = new Stop[stops.length + 1];
         System.arraycopy(stops, 0, newStops, 0, stops.length);
-        newStops[stops.length] = stop;
+        newStops[stops.length] = Stop.enteredBy(move);
 
         Move[] newMoves = new Move[moves.length + 1];
         System.arraycopy(moves, 0, newMoves, 0, moves.length);

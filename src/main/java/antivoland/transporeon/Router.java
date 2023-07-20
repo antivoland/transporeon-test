@@ -1,83 +1,64 @@
 package antivoland.transporeon;
 
-import antivoland.transporeon.dataset.AirportsDataset;
-import antivoland.transporeon.dataset.RoutesDataset;
 import antivoland.transporeon.exception.RouteNotFoundException;
-import antivoland.transporeon.exception.AirportNotFoundException;
 import antivoland.transporeon.model.Code;
 import antivoland.transporeon.model.Spot;
-import antivoland.transporeon.model.change.SegmentationBasedChangeDetector;
+import antivoland.transporeon.model.World;
 import antivoland.transporeon.model.route.Move;
 import antivoland.transporeon.model.route.Route;
-import com.google.common.graph.MutableValueGraph;
-import com.google.common.graph.ValueGraphBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
+import antivoland.transporeon.model.route.Stop;
+import org.jheaps.AddressableHeap;
+import org.jheaps.tree.FibonacciHeap;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static antivoland.transporeon.model.DistanceCalculator.kmDistance;
 
 @Component
-@SuppressWarnings("UnstableApiUsage")
 class Router {
-    private static final double MAX_GROUND_CROSSING_DISTANCE_KM = 100;
+    private static final int MAX_NUMBER_OF_FLIGHTS = 4;
 
-    private final Map<Integer, Spot> spots = new HashMap<>();
-    private final Map<Code, Integer> codeMapper = new HashMap<>();
-    private final RouteFinder routeFinder;
+    private final World world;
 
-    @Autowired
-    Router(AirportsDataset airportsDataset, RoutesDataset routesDataset) {
-        MutableValueGraph<Integer, Move> moves = ValueGraphBuilder.directed().allowsSelfLoops(false).build();
-
-        AtomicInteger nextId = new AtomicInteger(0);
-        airportsDataset
-                .read()
-                .map(airport -> airport.spot(nextId.incrementAndGet()))
-                .filter(spot -> !spot.codes.isEmpty())
-                .forEach(spot -> {
-                    spots.put(spot.id, spot);
-                    moves.addNode(spot.id);
-                    spot.codes.forEach(code -> codeMapper.put(code, spot.id));
-                });
-
-        new SegmentationBasedChangeDetector()
-                .detect(spots.values(), MAX_GROUND_CROSSING_DISTANCE_KM)
-                .forEach(change -> {
-                    Move move = Move.byGround(change.kmDistance);
-                    moves.putEdgeValue(change.src.id, change.dst.id, move);
-                });
-
-        routesDataset
-                .read()
-                .filter(route -> route.direct
-                        && route.srcAirportCode != null
-                        && codeMapper.containsKey(route.srcAirportCode)
-                        && route.dstAirportCode != null
-                        && codeMapper.containsKey(route.dstAirportCode)
-                        && !route.srcAirportCode.equals(route.dstAirportCode))
-                .forEach(route -> {
-                    Spot src = spots.get(codeMapper.get(route.srcAirportCode));
-                    Spot dst = spots.get(codeMapper.get(route.dstAirportCode));
-                    Move move = Move.byAir(kmDistance(src, dst));
-                    moves.putEdgeValue(src.id, dst.id, move);
-                });
-
-        routeFinder = new RouteFinder(spots, moves);
+    public Router(World world) {
+        this.world = world;
     }
 
-    Route findShortestRoute(Code srcAirportCode, Code dstAirportCode) {
-        if (srcAirportCode == null) throw new IllegalArgumentException("SRC airport code is missing");
-        if (dstAirportCode == null) throw new IllegalArgumentException("DST airport code is missing");
-        Integer srcId = codeMapper.get(srcAirportCode);
-        if (srcId == null) throw new AirportNotFoundException(srcAirportCode);
-        Integer dstId = codeMapper.get(dstAirportCode);
-        if (dstId == null) throw new AirportNotFoundException(dstAirportCode);
-        Route shortestRoute = routeFinder.findShortestRoute(spots.get(srcId), spots.get(dstId));
-        if (shortestRoute == null) throw new RouteNotFoundException(srcAirportCode, dstAirportCode);
+    Route findShortestRoute(Code srcCode, Code dstCode) {
+        if (srcCode == null) throw new IllegalArgumentException("SRC code is missing");
+        if (dstCode == null) throw new IllegalArgumentException("DST code is missing");
+        Spot src = world.spot(srcCode);
+        Spot dst = world.spot(dstCode);
+        Route shortestRoute = findShortestRoute(src, dst);
+        if (shortestRoute == null) throw new RouteNotFoundException(srcCode, dstCode);
         return shortestRoute;
+    }
+
+    private Route findShortestRoute(Spot src, Spot dst) {
+        AddressableHeap<Double, Route> heap = new FibonacciHeap<>();
+        Map<Stop, AddressableHeap.Handle<Double, Route>> seen = new HashMap<>();
+        seen.put(Stop.first(src.id), heap.insert(0d, new Route(Stop.first(src.id))));
+
+        AddressableHeap.Handle<Double, Route> min;
+        while ((min = heap.deleteMin()) != null) {
+            Route minRoute = min.getValue();
+            Stop minStop = minRoute.lastStop();
+            if (minStop.spotId == dst.id) return minRoute;
+            for (Move move : world.outgoingMoves(minStop.spotId)) {
+                if (!minRoute.canMove(move)) continue;
+                Route route = minRoute.move(move);
+                Stop stop = route.lastStop();
+                if (route.numberOfFlights() > MAX_NUMBER_OF_FLIGHTS) continue;
+                AddressableHeap.Handle<Double, Route> stopHandle = seen.get(stop);
+                if (stopHandle == null) {
+                    stopHandle = heap.insert(route.kmDistance, route);
+                    seen.put(stop, stopHandle);
+                } else if (route.kmDistance < stopHandle.getKey()) {
+                    stopHandle.decreaseKey(route.kmDistance);
+                    stopHandle.setValue(route);
+                }
+            }
+        }
+        return null;
     }
 }
