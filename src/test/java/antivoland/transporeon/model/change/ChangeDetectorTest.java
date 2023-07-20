@@ -48,10 +48,10 @@ public class ChangeDetectorTest {
         log.info("Segmentation based: changes={}, duration={}ms", segmentationBasedChangeIds.size(), System.currentTimeMillis() - start);
 
         leftDiff(bruteForceChangeIds, segmentationBasedChangeIds, spots)
-                .forEach(change -> log.error("Brute force only change: {}", change));
+                .forEach(change -> System.err.printf("Brute force only change: %s%n", change));
 
         leftDiff(segmentationBasedChangeIds, bruteForceChangeIds, spots)
-                .forEach(change -> log.error("Segmentation based only change: {}", change));
+                .forEach(change -> System.err.printf("Segmentation based only change: %s%n", change));
 
         assertThat(segmentationBasedChangeIds.equals(bruteForceChangeIds))
                 .withFailMessage(() -> "Brute force and a segmentation-based approach produce different changes")
