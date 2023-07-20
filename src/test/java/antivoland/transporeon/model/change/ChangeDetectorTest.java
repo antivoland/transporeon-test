@@ -1,7 +1,6 @@
 package antivoland.transporeon.model.change;
 
 import antivoland.transporeon.dataset.AirportsDataset;
-import antivoland.transporeon.dataset.Dataset;
 import antivoland.transporeon.model.Spot;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -15,7 +14,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import static antivoland.transporeon.model.DistanceCalculator.kmDistance;
 import static java.util.function.Function.identity;
@@ -49,13 +47,15 @@ public class ChangeDetectorTest {
         Set<ChangeId> segmentationBasedChangeIds = detectChanges(SegmentationBasedChangeDetector::new, spots.values());
         log.info("Segmentation based: changes={}, duration={}ms", segmentationBasedChangeIds.size(), System.currentTimeMillis() - start);
 
-        leftDiff(segmentationBasedChangeIds, bruteForceChangeIds, spots)
-                .forEach(change -> log.info("Segmentation based only change: {}", change));
-
         leftDiff(bruteForceChangeIds, segmentationBasedChangeIds, spots)
-                .forEach(change -> log.info("Brute force only change: {}", change));
+                .forEach(change -> log.error("Brute force only change: {}", change));
 
-        // todo: few corner spots are not detected as changes
+        leftDiff(segmentationBasedChangeIds, bruteForceChangeIds, spots)
+                .forEach(change -> log.error("Segmentation based only change: {}", change));
+
+        assertThat(segmentationBasedChangeIds.equals(bruteForceChangeIds))
+                .withFailMessage(() -> "Brute force and a segmentation-based approach produce different changes")
+                .isTrue(); // todo: few corner spots are not detected as changes
     }
 
     private static Set<ChangeId> detectChanges(Supplier<ChangeDetector> detector, Collection<Spot> spots) {
@@ -73,10 +73,6 @@ public class ChangeDetectorTest {
                 .filter(changeId -> !right.contains(changeId))
                 .map(changeId -> changeId.change(spots))
                 .toList();
-    }
-
-    Stream<Dataset.Airport> airports() {
-        return airportsDataset.read().filter(airport -> !airport.codes().isEmpty());
     }
 
     @ToString
