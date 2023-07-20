@@ -33,7 +33,7 @@ public class Route {
 
         Move[] newMoves = new Move[moves.length + 1];
         System.arraycopy(moves, 0, newMoves, 0, moves.length);
-        newMoves[moves.length + 1] = move;
+        newMoves[moves.length] = move;
         return new Route(newStops, newMoves);
     }
 
