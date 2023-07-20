@@ -33,10 +33,10 @@ class Router {
     Router(AirportsDataset airportsDataset, RoutesDataset routesDataset) {
         MutableValueGraph<Integer, Move> moves = ValueGraphBuilder.directed().allowsSelfLoops(false).build();
 
-        AtomicInteger id = new AtomicInteger(0);
+        AtomicInteger nextId = new AtomicInteger(0);
         airportsDataset
                 .read()
-                .map(airport -> airport.spot(id.incrementAndGet()))
+                .map(airport -> airport.spot(nextId.incrementAndGet()))
                 .filter(spot -> !spot.codes.isEmpty())
                 .forEach(spot -> {
                     spots.put(spot.id, spot);
