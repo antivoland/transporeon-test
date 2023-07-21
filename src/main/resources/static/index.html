@@ -5,7 +5,8 @@
         }
 
         .search {
-            position: relative;
+            position: absolute;
+            width: 100%;
         }
 
         .code {
@@ -31,48 +32,11 @@
 <div id="globeViz"></div>
 
 <script>
-    fetch('airports').then(response => response.json()).then(airports => {
-        const codes = airports.flatMap(airport => {
-            const airportCodes = [];
-            if (airport.iataCode != null) airportCodes.push({
-                type: 'IATA',
-                value: airport.iataCode.value,
-                name: airport.iataCode.value + ' (lat=' + airport.lat + ', lon=' + airport.lon + ')'
-            })
-            if (airport.icaoCode != null) airportCodes.push({
-                type: 'ICAO',
-                value: airport.icaoCode.value,
-                name: airport.icaoCode.value + ' (lat=' + airport.lat + ', lon=' + airport.lon + ')'
-            })
-            return airportCodes
-        })
-        for (const sel of ['#src', '#dst']) {
-            $(sel).selectize({
-                options: codes,
-                optionGroupRegister: function (optgroup) {
-                    const group = {};
-                    group['label'] = optgroup;
-                    group[this.settings.optgroupValueField] = optgroup;
-                    return group;
-                },
-                optgroupField: 'type',
-                labelField: 'name',
-                searchField: ['name'],
-                sortField: 'name'
-            });
-        }
-    });
-
-    const COUNTRY = 'Estonia';
-    const OPACITY = 1;
-
-    const myGlobe = Globe()
-    (document.getElementById('globeViz'))
-
+    var srcCode = null, dstCode = null;
+    const globe = Globe()($('#globeViz')[0])
         // .globeImageUrl('img/earth-night.jpg') // todo: night mode?
         .globeImageUrl('img/earth-blue-marble.jpg')
-        // .pointOfView({lat: 59.4, lng: 24.8, altitude: 2}) // TLL
-        .pointOfView({lat: 59.4, lng: 24.8, altitude: 0.1}) // TLL
+        .pointOfView({lat: 59.4, lng: 24.8, altitude: 2})
 
         .arcLabel(d => `${d.srcIata} &#8594; ${d.dstIata}`)
         .arcStartLat(d => +d.srcAirport.lat)
@@ -83,26 +47,94 @@
         .arcDashGap(0.2)
         .arcDashInitialGap(() => Math.random())
         .arcDashAnimateTime(10000)
-        .arcColor(d => [`rgba(0, 255, 0, ${OPACITY})`, `rgba(255, 0, 0, ${OPACITY})`])
+        .arcColor(d => [`rgba(0, 255, 0, 1)`, `rgba(255, 0, 0, 1)`])
         .arcsTransitionDuration(0)
 
         // .labelsData(places.features)
         .labelLat(d => d.lat)
         .labelLng(d => d.lon)
-        .labelText(d => {
-            return `${d.iataCode}`
-        })
+        .labelText(d => d.val)
         // .labelText(d => `${d.iataCode.value} / ${d.icaoCode.value}`)
         // .labelText(d => 'xxx')
-        .labelSize(0.05)
-        .labelDotRadius(0.05)
+        .labelSize(1)
+        .labelDotRadius(0.3)
         .labelColor(() => 'rgba(255, 165, 0, 0.75)')
         .labelResolution(2)
+        .labelsTransitionDuration(0)
 
-    // .pointColor(() => 'orange')
-    // .pointAltitude(0)
-    // .pointRadius(0.02);
-    // .pointsMerge(true);
+        .ringColor(() => t => `rgba(255,100,50,${Math.sqrt(1 - t)})`)
+        .ringMaxRadius(5)
+        .ringPropagationSpeed(10)
+        .ringRepeatPeriod(2000)
+
+    fetch('airports')
+        .then(response => response.json())
+        .then(airports => {
+            const codeMapper = {};
+            for (const airport of airports) {
+                if (airport.iataCode != null) codeMapper[airport.iataCode.value] = airport;
+                if (airport.icaoCode != null) codeMapper[airport.icaoCode.value] = airport;
+            }
+            const selectOptions = airports.flatMap(airport => {
+                const airportCodes = [];
+                if (airport.iataCode != null) airportCodes.push({
+                    type: 'IATA',
+                    value: airport.iataCode.value,
+                    name: airport.iataCode.value + ' (lat=' + airport.lat + ', lon=' + airport.lon + ')'
+                })
+                if (airport.icaoCode != null) airportCodes.push({
+                    type: 'ICAO',
+                    value: airport.icaoCode.value,
+                    name: airport.icaoCode.value + ' (lat=' + airport.lat + ', lon=' + airport.lon + ')'
+                })
+                return airportCodes
+            })
+            for (const sel of ['#src', '#dst']) {
+                $(sel).selectize({
+                    options: selectOptions,
+                    optionGroupRegister: function (optgroup) {
+                        const group = {};
+                        group['label'] = optgroup;
+                        group[this.settings.optgroupValueField] = optgroup;
+                        return group;
+                    },
+                    optgroupField: 'type',
+                    labelField: 'name',
+                    searchField: ['name'],
+                    sortField: 'name',
+                    onChange: code => {
+                        if (sel === '#src') srcCode = code ? code : null;
+                        else dstCode = code ? code : null;
+
+                        const src = srcCode != null ? codeMapper[srcCode] : null;
+                        const dst = dstCode != null ? codeMapper[dstCode] : null;
+
+                        const labels = [];
+                        const rings = [];
+                        if (src != null) {
+                            labels.push({lat: src.lat, lon: src.lon, val: srcCode})
+                            rings.push({lat: src.lat, lng: src.lon})
+                        }
+                        if (dst != null) {
+                            labels.push({lat: dst.lat, lon: dst.lon, val: dstCode})
+                            rings.push({lat: dst.lat, lng: dst.lon})
+                        }
+
+                        globe.labelsData(labels);
+                        globe.ringsData(rings);
+
+                        if (srcCode != null && dstCode != null) {
+
+                        } else if (srcCode != null) {
+                            globe.pointOfView({lat: src.lat, lng: src.lon, altitude: 1}, 2000);
+                        } else {
+                            globe.pointOfView({lat: dst.lat, lng: dst.lon, altitude: 1}, 2000);
+                        }
+                    }
+                });
+            }
+        });
+
 
     const routeParse = ([airline, airlineId, srcIata, srcAirportId, dstIata, dstAirportId, codeshare, stops, equipment]) => ({
         airline,
