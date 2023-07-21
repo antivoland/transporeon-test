@@ -10,6 +10,7 @@ import static antivoland.transporeon.model.Code.code;
 
 @Component
 public class AirportDataset implements Dataset<Dataset.Airport> {
+    private static final int NAME = 1;
     private static final int IATA_CODE = 4;
     private static final int ICAO_CODE = 5;
     private static final int LAT = 6;
@@ -26,6 +27,7 @@ public class AirportDataset implements Dataset<Dataset.Airport> {
                 .icaoCode(code(row[ICAO_CODE]))
                 .lat(Double.parseDouble(row[LAT]))
                 .lon(Double.parseDouble(row[LON]))
+                .name(row[NAME])
                 .build());
     }
 }

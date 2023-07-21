@@ -79,7 +79,7 @@ public class World {
     public Collection<Move> outgoingMoves(int spotId) {
         Collection<Move> outgoingMoves = new ArrayList<>();
         for (EndpointPair<Integer> edge : moves.incidentEdges(spotId)) {
-            if (edge.source() != spotId) {
+            if (edge.source() == spotId) {
                 moves.edgeValue(edge).ifPresent(outgoingMoves::add);
             }
         }

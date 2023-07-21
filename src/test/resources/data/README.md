@@ -5,3 +5,7 @@ I used 4 airports for the sake of testing:
 * OSL, Oslo Airport
 * TOS, Tromsø Airport
 * TLL, Tallinn Airport
+
+TLL -> CCE4 - not found
+
+TLL -> BUZ - roads

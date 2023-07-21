@@ -39,8 +39,8 @@ class Router {
         Map<Stop, AddressableHeap.Handle<Double, Route>> seen = new HashMap<>();
         seen.put(Stop.first(src.id), heap.insert(0d, new Route(Stop.first(src.id))));
 
-        AddressableHeap.Handle<Double, Route> min;
-        while ((min = heap.deleteMin()) != null) {
+        while (!heap.isEmpty()) {
+            AddressableHeap.Handle<Double, Route> min = heap.deleteMin();
             Route minRoute = min.getValue();
             Stop minStop = minRoute.lastStop();
             if (minStop.spotId == dst.id) return minRoute;

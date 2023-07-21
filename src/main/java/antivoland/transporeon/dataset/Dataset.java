@@ -21,6 +21,7 @@ public interface Dataset<E> {
         public final Code icaoCode;
         public final double lat;
         public final double lon;
+        public final String name;
 
         public Set<Code> codes() {
             Set<Code> codes = new HashSet<>();
