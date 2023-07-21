@@ -1,17 +1,68 @@
 <head>
-    <style> body {
-        margin: 0;
-    } </style>
+    <style>
+        body {
+            margin: 0;
+        }
 
-    <script src="js/d3-dsv.min.js"></script>
-    <script src="js/index-array-by.min.js"></script>
-    <script src="js/globe.gl.min.js"></script>
+        .search {
+            position: relative;
+        }
+
+        .code {
+            width: 50%;
+            float: left;
+        }
+    </style>
+
+    <script type="text/javascript" src="js/d3-dsv.min.js"></script>
+    <script type="text/javascript" src="js/index-array-by.min.js"></script>
+    <script type="text/javascript" src="js/globe.gl.min.js"></script>
+    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+    <script type="text/javascript" src="js/selectize.min.js"></script>
+
+    <link rel="stylesheet" href="css/selectize.default.css">
 </head>
 
 <body>
+<div class="search">
+    <select id="src" class="code" placeholder="Select SRC code..."></select>
+    <select id="dst" class="code" placeholder="Select DST code..."></select>
+</div>
 <div id="globeViz"></div>
 
 <script>
+    fetch('airports').then(response => response.json()).then(airports => {
+        const codes = airports.flatMap(airport => {
+            const airportCodes = [];
+            if (airport.iataCode != null) airportCodes.push({
+                type: 'IATA',
+                value: airport.iataCode.value,
+                name: airport.iataCode.value + ' (lat=' + airport.lat + ', lon=' + airport.lon + ')'
+            })
+            if (airport.icaoCode != null) airportCodes.push({
+                type: 'ICAO',
+                value: airport.icaoCode.value,
+                name: airport.icaoCode.value + ' (lat=' + airport.lat + ', lon=' + airport.lon + ')'
+            })
+            return airportCodes
+        })
+        for (const sel of ['#src', '#dst']) {
+            $(sel).selectize({
+                options: codes,
+                optionGroupRegister: function (optgroup) {
+                    const group = {};
+                    group['label'] = optgroup;
+                    group[this.settings.optgroupValueField] = optgroup;
+                    return group;
+                },
+                optgroupField: 'type',
+                labelField: 'name',
+                searchField: ['name'],
+                sortField: 'name'
+            });
+        }
+    });
+
     const COUNTRY = 'Estonia';
     const OPACITY = 1;
 
@@ -48,10 +99,10 @@
         .labelColor(() => 'rgba(255, 165, 0, 0.75)')
         .labelResolution(2)
 
-        // .pointColor(() => 'orange')
-        // .pointAltitude(0)
-        // .pointRadius(0.02);
-        // .pointsMerge(true);
+    // .pointColor(() => 'orange')
+    // .pointAltitude(0)
+    // .pointRadius(0.02);
+    // .pointsMerge(true);
 
     const routeParse = ([airline, airlineId, srcIata, srcAirportId, dstIata, dstAirportId, codeshare, stops, equipment]) => ({
         airline,
@@ -65,28 +116,28 @@
         equipment
     });
 
-    Promise.all([
-        fetch('airports').then(res => res.json())
-            .then(d => d),
-        fetch('https://raw.githubusercontent.com/jpatokal/openflights/master/data/routes.dat').then(res => res.text())
-            .then(d => d3.csvParseRows(d, routeParse))
-    ]).then(([airports, routes]) => {
-
-        // const byIata = indexBy(airports, 'iata', false);
-        //
-        // const filteredRoutes = routes
-        //     .filter(d => byIata.hasOwnProperty(d.srcIata) && byIata.hasOwnProperty(d.dstIata)) // exclude unknown airports
-        //     .filter(d => d.stops === '0') // non-stop flights only
-        //     .map(d => Object.assign(d, {
-        //         srcAirport: byIata[d.srcIata],
-        //         dstAirport: byIata[d.dstIata]
-        //     }))
-        //     .filter(d => d.srcAirport.country === COUNTRY && d.dstAirport.country !== COUNTRY); // international routes from country
-
-        myGlobe
-            .labelsData(airports);
-            // .pointsData(airports)
-            // .arcsData(filteredRoutes);
-    });
+    // Promise.all([
+    //     fetch('airports').then(res => res.json())
+    //         .then(d => d),
+    //     fetch('https://raw.githubusercontent.com/jpatokal/openflights/master/data/routes.dat').then(res => res.text())
+    //         .then(d => d3.csvParseRows(d, routeParse))
+    // ]).then(([airports, routes]) => {
+    //
+    //     // const byIata = indexBy(airports, 'iata', false);
+    //     //
+    //     // const filteredRoutes = routes
+    //     //     .filter(d => byIata.hasOwnProperty(d.srcIata) && byIata.hasOwnProperty(d.dstIata)) // exclude unknown airports
+    //     //     .filter(d => d.stops === '0') // non-stop flights only
+    //     //     .map(d => Object.assign(d, {
+    //     //         srcAirport: byIata[d.srcIata],
+    //     //         dstAirport: byIata[d.dstIata]
+    //     //     }))
+    //     //     .filter(d => d.srcAirport.country === COUNTRY && d.dstAirport.country !== COUNTRY); // international routes from country
+    //
+    //     myGlobe
+    //         .labelsData(airports);
+    //     // .pointsData(airports)
+    //     // .arcsData(filteredRoutes);
+    // });
 </script>
 </body>
