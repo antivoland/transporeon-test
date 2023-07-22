@@ -40,7 +40,7 @@
 <div id="globeViz"></div>
 
 <script>
-    let srcCode = null, dstCode = null;
+    let srcCode = null, dstCode = null, limited = true;
     const globe = Globe()($('#globeViz')[0])
         .globeImageUrl('img/earth-night.jpg')
         .pointOfView({lat: 59.4, lng: 24.8, altitude: 2})
@@ -89,7 +89,10 @@
         onDelete: () => false
     });
     $('#theme-selectized').attr('readonly', 'readonly');
-    $('#limit').selectize({onDelete: () => false});
+    $('#limit').selectize({
+        onChange: value => limited = value === 'limited',
+        onDelete: () => false
+    });
     $('#limit-selectized').attr('readonly', 'readonly');
     // todo: hand cursor
 
@@ -151,7 +154,7 @@
                         globe.arcsData([])
 
                         if (srcCode != null && dstCode != null) {
-                            fetch(`route?srcCode=${srcCode}&dstCode=${dstCode}`)
+                            fetch(`route?srcCode=${srcCode}&dstCode=${dstCode}&limited=${limited}`)
                                 .then(response => response.json())
                                 .then(route => {
                                     globe.arcsData(route.moves)

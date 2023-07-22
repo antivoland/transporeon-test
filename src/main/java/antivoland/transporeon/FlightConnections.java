@@ -19,8 +19,10 @@ class FlightConnections {
     }
 
     @GetMapping("route")
-    Route route(@RequestParam("srcCode") String srcCode, @RequestParam("dstCode") String dstCode) {
-        return router.findShortestRoute(Code.code(srcCode), Code.code(dstCode));
+    Route route(@RequestParam(value = "srcCode") String srcCode,
+                @RequestParam(value = "dstCode") String dstCode,
+                @RequestParam(value = "limited", defaultValue = "true") boolean limited) {
+        return router.findShortestRoute(Code.code(srcCode), Code.code(dstCode), limited);
     }
 
     // todo: exception handlers
