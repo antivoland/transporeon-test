@@ -65,20 +65,12 @@ So let's split the Earth into segments as follows:
 
 ![Sectors](sectors.png)
 
-Here are the airports' distribution:
+There are regular and pole segments. For each given segment, I can find an environment consisting of other segments that have points closer than 100 km to any possible point within that segment. There is a special behaviour for getting an environment for pole sectors, however the implementation is clean and self-descriptive, so I won't go into details here.
 
-![Airport's distribution](airports.png)
+## Main idea
 
-## Run
+The existence of single ground runs makes impossible to apply a pure shortest route searching algorithm. So I introduced virtual nodes of two types: entered by air and entered by ground. If some route ends with a virtual node entered by ground, then the next move can only be made by air.
 
-You'll need to build (prerequisites are Maven and 17th Java):
+The algorithm is an extension of Dijkstra's one with a Fibonacci heap. We still pick the shortest route on every step, traverse its neighbors and so on. And the proof of correctness is about the same.
 
-```shell
-make build
-```
-
-And then run the application server as follows:
-
-```shell
-make run
-```
+I only want to outline why we can stop searching once we have reached any of the virtual destination nodes. Same logic, if the route between source and the second virtual node is shorter, then the algorithm will reach it first.
