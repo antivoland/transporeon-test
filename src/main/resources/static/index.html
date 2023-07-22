@@ -9,8 +9,8 @@
             width: 100%;
         }
 
-        .code {
-            width: 50%;
+        .select {
+            width: 25%;
             float: left;
         }
     </style>
@@ -26,16 +26,23 @@
 
 <body>
 <div class="search">
-    <select id="src" class="code" placeholder="Select SRC code..."></select>
-    <select id="dst" class="code" placeholder="Select DST code..."></select>
+    <select id="src" class="select" placeholder="Select SRC code..."></select>
+    <select id="dst" class="select" placeholder="Select DST code..."></select>
+    <select id="theme" class="select">
+        <option value="dark">Dark</option>
+        <option value="light selected">Light</option>
+    </select>
+    <select id="limit" class="select">
+        <option value="limited" selected>Maximum 4 flights</option>
+        <option value="unlimited">Unlimited</option>
+    </select>
 </div>
 <div id="globeViz"></div>
 
 <script>
     let srcCode = null, dstCode = null;
     const globe = Globe()($('#globeViz')[0])
-        // .globeImageUrl('img/earth-night.jpg') // todo: night mode?
-        .globeImageUrl('img/earth-blue-marble.jpg')
+        .globeImageUrl('img/earth-night.jpg')
         .pointOfView({lat: 59.4, lng: 24.8, altitude: 2})
 
         .arcLabel(move => {
@@ -74,6 +81,17 @@
         .ringMaxRadius(5)
         .ringPropagationSpeed(10)
         .ringRepeatPeriod(2000)
+
+    $('#theme').selectize({
+        onChange: value => globe.globeImageUrl(value === 'dark'
+            ? 'img/earth-night.jpg'
+            : 'img/earth-blue-marble.jpg'),
+        onDelete: () => false
+    });
+    $('#theme-selectized').attr('readonly', 'readonly');
+    $('#limit').selectize({onDelete: () => false});
+    $('#limit-selectized').attr('readonly', 'readonly');
+    // todo: hand cursor
 
     fetch('airports')
         .then(response => response.json())
@@ -145,7 +163,7 @@
                                     }
                                     labels.push({lat: dst.lat, lon: dst.lon, val: dstCode})
                                     globe.labelsData(labels);
-                                    globe.pointOfView({altitude: 1}, 2000);
+                                    globe.pointOfView({altitude: 1}, 2000); // todo: midpoint
                                 })
                         } else if (srcCode != null) {
                             globe.pointOfView({lat: src.lat, lng: src.lon, altitude: 0.5}, 2000);
