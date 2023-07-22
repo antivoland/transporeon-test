@@ -19,10 +19,24 @@ ASP -road, far , 4 legs
 tll - ags - 5 unlimited
 - anq 5 + road at the end
 
+anm 8 fl, ends with road / limited exists
+
+bca 6fl, 1r / limited doesn't exist
+
+brt, bsd, byq, adl, agn, aju lim/unl diff visible nicely
+
+bzf  - side move
+
 Video:
 srs: TLL
-dst: ANQ or ags
+dst: anm
 limited: true
 limited: false
+ags
+limited: true
+limited: false
+dst: buz
 dst: null
 src: null
+
+ffmpeg -i ui.720p.mov -f mp4 -vcodec libx264 -preset fast -profile:v main -acodec aac output.mp4

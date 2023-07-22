@@ -10,7 +10,6 @@
         }
 
         .select {
-            width: 25%;
             float: left;
         }
     </style>
@@ -28,13 +27,13 @@
 
 <body>
 <div class="search">
-    <select id="src" class="select" style="width: 25%" placeholder="Select SRC code..."></select>
-    <select id="dst" class="select" placeholder="Select DST code..."></select>
-    <select id="theme" class="select">
+    <select id="src" style="width: 35%" class="select" style="width: 25%" placeholder="Select SRC code..."></select>
+    <select id="dst" style="width: 35%" class="select" placeholder="Select DST code..."></select>
+    <select id="theme" style="width: 10%" class="select">
         <option value="dark">Dark</option>
         <option value="light selected">Light</option>
     </select>
-    <select id="limit" class="select">
+    <select id="limit" style="width: 20%" class="select">
         <option value="unlimited" selected>Unlimited</option>
         <option value="limited">Limited to 4 flights maximum</option>
     </select>
@@ -191,7 +190,11 @@
             if (debug) rings.push({lat: mid.lat, lng: mid.lon})
             cameraLat = mid.lat;
             cameraLon = mid.lon;
-            cameraAlt = kmDistance(src.lat, src.lon, dst.lat, dst.lon) / 5000;
+            if (route != null) {
+                cameraAlt = route.kmDistance / 5000;
+            } else {
+                cameraAlt = kmDistance(src.lat, src.lon, dst.lat, dst.lon) / 5000;
+            }
         } else if (srcCode != null) {
             labels.push({lat: src.lat, lon: src.lon, val: srcCode})
             cameraLat = src.lat;
