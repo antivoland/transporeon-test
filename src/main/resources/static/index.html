@@ -41,6 +41,7 @@
 
 <script>
     let srcCode = null, dstCode = null, limited = false, route = null;
+    let debug = false;
 
     const update = () => {
         if (srcCode != null && dstCode != null) {
@@ -94,7 +95,7 @@
         .labelsTransitionDuration(0)
 
         .ringColor(() => t => `rgba(255,100,50,${Math.sqrt(1 - t)})`)
-        .ringMaxRadius(20)
+        .ringMaxRadius(5)
         .ringPropagationSpeed(10)
         .ringRepeatPeriod(2000)
 
@@ -117,41 +118,21 @@
 
     const degreesToRadians = degrees => degrees * Math.PI / 180;
 
-    const radiansToDegrees = radians => radians * (180 / Math.PI);
+    const radiansToDegrees = radians => radians * 180 / Math.PI;
 
-    const midpoint = (lat1, lon1, lat2, lon2) => {
-        let dLon = degreesToRadians(lon2 - lon1);
+    const midpoint = (srcLat, srcLon, dstLat, dstLon) => {
+        let dLon = degreesToRadians(dstLon - srcLon);
 
-        //convert to radians
-        lat1 = degreesToRadians(lat1);
-        lat2 = degreesToRadians(lat2);
-        lon1 = degreesToRadians(lon1);
+        srcLat = degreesToRadians(srcLat);
+        dstLat = degreesToRadians(dstLat);
+        srcLon = degreesToRadians(srcLon);
 
-        let Bx = Math.cos(lat2) * Math.cos(dLon);
-        let By = Math.cos(lat2) * Math.sin(dLon);
-        let lat3 = Math.atan2(Math.sin(lat1) + Math.sin(lat2), Math.sqrt((Math.cos(lat1) + Bx) * (Math.cos(lat1) + Bx) + By * By));
-        let lon3 = lon1 + Math.atan2(By, Math.cos(lat1) + Bx);
-        return {lat: radiansToDegrees(lat3), lon: radiansToDegrees(lon3)};
+        let Bx = Math.cos(dstLat) * Math.cos(dLon);
+        let By = Math.cos(dstLat) * Math.sin(dLon);
+        let midLat = Math.atan2(Math.sin(srcLat) + Math.sin(dstLat), Math.sqrt((Math.cos(srcLat) + Bx) * (Math.cos(srcLat) + Bx) + By * By));
+        let midLon = srcLon + Math.atan2(By, Math.cos(srcLat) + Bx);
+        return {lat: radiansToDegrees(midLat), lon: radiansToDegrees(midLon)};
     };
-
-    const middlePoint = function (lat1, lng1, lat2, lng2) {
-
-        //-- Longitude difference
-        var dLng = degreesToRadians(lng2 - lng1);
-
-        //-- Convert to radians
-        lat1 = degreesToRadians(lat1);
-        lat2 = degreesToRadians(lat2);
-        lng1 = degreesToRadians(lng1);
-
-        var bX = Math.cos(lat2) * Math.cos(dLng);
-        var bY = Math.cos(lat2) * Math.sin(dLng);
-        var lat3 = Math.atan2(Math.sin(lat1) + Math.sin(lat2), Math.sqrt((Math.cos(lat1) + bX) * (Math.cos(lat1) + bX) + bY * bY));
-        var lng3 = lng1 + Math.atan2(bY, Math.cos(lat1) + bX);
-
-        //-- Return result
-        return {lat: radiansToDegrees(lat3), lon: radiansToDegrees(lng3)};
-    }
 
     const redraw = () => {
         const src = srcCode != null ? codeMapper[srcCode] : null;
@@ -173,12 +154,13 @@
             }
             labels.push({lat: dst.lat, lon: dst.lon, val: dstCode})
 
-            const midpoin = middlePoint(src.lat, src.lon, dst.lat, dst.lon);
-            rings.push({lat: midpoin.lat, lng: midpoin.lon})
-
-            cameraLat = midpoin.lat;
-            cameraLon = midpoin.lon;
-            cameraAlt = 2;
+            const mid = midpoint(src.lat, src.lon, dst.lat, dst.lon);
+            if (debug) rings.push({lat: mid.lat, lng: mid.lon})
+            cameraLat = mid.lat;
+            cameraLon = mid.lon;
+            if (route != null) {
+                cameraAlt = route.kmDistance / 6000;
+            }
         } else if (srcCode != null) {
             labels.push({lat: src.lat, lon: src.lon, val: srcCode})
             cameraLat = src.lat;
@@ -199,7 +181,11 @@
         globe.arcsData(moves)
         globe.ringsData(rings);
 
-        globe.pointOfView({lat: cameraLat, lon: cameraLon, altitude: cameraAlt}, 2000);
+        if (cameraAlt != null) {
+            globe.pointOfView({lat: cameraLat, lng: cameraLon, altitude: cameraAlt}, 2000);
+        } else {
+            globe.pointOfView({lat: cameraLat, lng: cameraLon}, 2000);
+        }
     }
 
     fetch('airports')
