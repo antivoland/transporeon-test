@@ -134,6 +134,18 @@
         return {lat: radiansToDegrees(midLat), lon: radiansToDegrees(midLon)};
     };
 
+    kmDistance = (srcLat, srcLon, dstLat, dstLon) => {
+        let R = 6371; // radius of the Earth in km
+        let dLat = degreesToRadians(dstLat - srcLat);
+        let dLon = degreesToRadians(dstLon - srcLon);
+        let a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(degreesToRadians(srcLat)) * Math.cos(degreesToRadians(dstLat)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c; // distance in km;
+    }
+
     const redraw = () => {
         const src = srcCode != null ? codeMapper[srcCode] : null;
         const dst = dstCode != null ? codeMapper[dstCode] : null;
@@ -158,9 +170,7 @@
             if (debug) rings.push({lat: mid.lat, lng: mid.lon})
             cameraLat = mid.lat;
             cameraLon = mid.lon;
-            if (route != null) {
-                cameraAlt = route.kmDistance / 6000;
-            }
+            cameraAlt = kmDistance(src.lat, src.lon, dst.lat, dst.lon) / 6000;
         } else if (srcCode != null) {
             labels.push({lat: src.lat, lon: src.lon, val: srcCode})
             cameraLat = src.lat;
@@ -181,11 +191,7 @@
         globe.arcsData(moves)
         globe.ringsData(rings);
 
-        if (cameraAlt != null) {
-            globe.pointOfView({lat: cameraLat, lng: cameraLon, altitude: cameraAlt}, 2000);
-        } else {
-            globe.pointOfView({lat: cameraLat, lng: cameraLon}, 2000);
-        }
+        globe.pointOfView({lat: cameraLat, lng: cameraLon, altitude: cameraAlt}, 2000);
     }
 
     fetch('airports')
