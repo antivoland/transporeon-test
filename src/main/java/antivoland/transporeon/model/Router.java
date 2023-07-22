@@ -1,9 +1,6 @@
-package antivoland.transporeon;
+package antivoland.transporeon.model;
 
 import antivoland.transporeon.exception.RouteNotFoundException;
-import antivoland.transporeon.model.Code;
-import antivoland.transporeon.model.Spot;
-import antivoland.transporeon.model.World;
 import antivoland.transporeon.model.route.Move;
 import antivoland.transporeon.model.route.Route;
 import antivoland.transporeon.model.route.Stop;
@@ -15,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-class Router {
+public class Router {
     private static final int MAX_NUMBER_OF_FLIGHTS = 4;
 
     private final World world;
@@ -24,7 +21,11 @@ class Router {
         this.world = world;
     }
 
-    Route findShortestRoute(Code srcCode, Code dstCode, boolean limited) {
+    public Route findShortestRoute(Code srcCode, Code dstCode) {
+        return findShortestRoute(srcCode, dstCode, true);
+    }
+
+    public Route findShortestRoute(Code srcCode, Code dstCode, boolean limited) {
         if (srcCode == null) throw new IllegalArgumentException("SRC code is missing");
         if (dstCode == null) throw new IllegalArgumentException("DST code is missing");
         Spot src = world.spot(srcCode);

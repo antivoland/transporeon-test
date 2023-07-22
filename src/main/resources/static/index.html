@@ -47,7 +47,7 @@
 
     const update = () => {
         if (srcCode != null && dstCode != null) {
-            fetch(`route?srcCode=${srcCode}&dstCode=${dstCode}&limited=${limited}`)
+            fetch(`routes/shortest?srcCode=${srcCode}&dstCode=${dstCode}&limited=${limited}`)
                 .then(response => {
                     if (response.ok) return response.json();
                     const status = response.status;
@@ -206,8 +206,18 @@
         globe.pointOfView({lat: cameraLat, lng: cameraLon, altitude: cameraAlt}, 2000);
     }
 
-    fetch('airports')
-        .then(response => response.json())
+    fetch('datasets/airports')
+        .then(response => {
+            if (response.ok) return response.json();
+            const status = response.status;
+            return response.text().then(message => {
+                Swal.fire({
+                    icon: 'error',
+                    title: status,
+                    text: message
+                })
+            })
+        })
         .then(airports => {
             for (const airport of airports) {
                 if (airport.iataCode != null) codeMapper[airport.iataCode.value] = airport;

@@ -21,7 +21,7 @@ tll - ags - 5 unlimited
 
 Video:
 srs: TLL
-dst: ANQ
+dst: ANQ or ags
 limited: true
 limited: false
 dst: null
