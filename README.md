@@ -2,9 +2,29 @@
 
 [![Build Status](https://github.com/antivoland/transporeon-test/workflows/build/badge.svg)](https://github.com/antivoland/transporeon-test/actions/workflows/build.yml)
 
-Check the task description [here](TASK.md). We need to find a route between two airports having no more than three intermediate stops. And the bonus part will be to allow short ground runs between stops no longer than 100 km.
+Check the task description [here](TASK.md). We need to find a route between two airports. This route shouldn't contain more than 4 flights. It is also possible to move between airports by land if the distance between them is less than 100 km, however these changes cannot be made more than once in a row.
 
-I [started](https://github.com/antivoland/transporeon-test/tree/typescript) with the implementation using TypeScript, but soon realized that I would not be able to meet the deadline amid other ongoing interview processes. So I've decided to focus on the solution using Java.
+I [started](https://github.com/antivoland/transporeon-test/tree/typescript) with the implementation using TypeScript, but soon I realized that I would not be able to meet any deadlines, since I was not used to building backends with this stack, and the algorithmic task itself is quite complicated. So I've decided to focus on the solution using Java.
+
+## Run
+
+You'll need to build the project (prerequisites are Maven and 17th Java):
+
+```shell
+make build
+```
+
+And then run the application server as follows:
+
+```shell
+make run
+```
+
+I created UI part in a fast and rather dirty manner, however the result looks awesome.
+
+https://github.com/antivoland/transporeon-test/assets/3669979/29915220-8819-4e6f-87e7-20d97aea014f
+
+Open `localhost:40075` in your browser to access the UI. It allows to select source and destination airports by IATA or ICAO codes or simply by name. You can search for routes using the original task constraint (4 flights maximum) or search for routes of any length. There are also two display themes to choose from, dark and light.
 
 ## Datasets
 
