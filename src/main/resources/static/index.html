@@ -26,21 +26,22 @@
 
 <body>
 <div class="search">
-    <select id="src" class="select" placeholder="Select SRC code..."></select>
+    <select id="src" class="select" style="width: 25%" placeholder="Select SRC code..."></select>
     <select id="dst" class="select" placeholder="Select DST code..."></select>
     <select id="theme" class="select">
         <option value="dark">Dark</option>
         <option value="light selected">Light</option>
     </select>
     <select id="limit" class="select">
-        <option value="limited" selected>Maximum 4 flights</option>
-        <option value="unlimited">Unlimited</option>
+        <option value="unlimited" selected>Unlimited</option>
+        <option value="limited">Limited to 4 flights maximum</option>
     </select>
 </div>
 <div id="globeViz"></div>
 
 <script>
-    let srcCode = null, dstCode = null, limited = true;
+    let srcCode = null, dstCode = null, limited = false;
+    const codeMapper = {};
     const globe = Globe()($('#globeViz')[0])
         .globeImageUrl('img/earth-night.jpg')
         .pointOfView({lat: 59.4, lng: 24.8, altitude: 2})
@@ -90,16 +91,55 @@
     });
     $('#theme-selectized').attr('readonly', 'readonly');
     $('#limit').selectize({
-        onChange: value => limited = value === 'limited',
+        onChange: value => {
+            limited = value === 'limited';
+            update();
+        },
         onDelete: () => false
     });
     $('#limit-selectized').attr('readonly', 'readonly');
     // todo: hand cursor
 
+    const update = function () {
+        const src = srcCode != null ? codeMapper[srcCode] : null;
+        const dst = dstCode != null ? codeMapper[dstCode] : null;
+
+        const labels = [];
+        if (src != null) {
+            labels.push({lat: src.lat, lon: src.lon, val: srcCode})
+        }
+        if (dst != null) {
+            labels.push({lat: dst.lat, lon: dst.lon, val: dstCode})
+        }
+
+        globe.labelsData(labels);
+        globe.arcsData([])
+
+        if (srcCode != null && dstCode != null) {
+            fetch(`route?srcCode=${srcCode}&dstCode=${dstCode}&limited=${limited}`)
+                .then(response => response.json())
+                .then(route => {
+                    globe.arcsData(route.moves)
+                    const labels = [];
+                    labels.push({lat: src.lat, lon: src.lon, val: srcCode})
+                    for (let idx = 1; idx < route.moves.length; ++idx) {
+                        const move = route.moves[idx];
+                        labels.push({lat: move.src.lat, lon: move.src.lon, val: ""})
+                    }
+                    labels.push({lat: dst.lat, lon: dst.lon, val: dstCode})
+                    globe.labelsData(labels);
+                    globe.pointOfView({altitude: 1}, 2000); // todo: midpoint
+                })
+        } else if (srcCode != null) {
+            globe.pointOfView({lat: src.lat, lng: src.lon, altitude: 0.5}, 2000);
+        } else {
+            globe.pointOfView({lat: dst.lat, lng: dst.lon, altitude: 0.5}, 2000);
+        }
+    }
+
     fetch('airports')
         .then(response => response.json())
         .then(airports => {
-            const codeMapper = {};
             for (const airport of airports) {
                 if (airport.iataCode != null) codeMapper[airport.iataCode.value] = airport;
                 if (airport.icaoCode != null) codeMapper[airport.icaoCode.value] = airport;
@@ -134,45 +174,7 @@
                     onChange: code => {
                         if (sel === '#src') srcCode = code ? code : null;
                         else dstCode = code ? code : null;
-
-                        const src = srcCode != null ? codeMapper[srcCode] : null;
-                        const dst = dstCode != null ? codeMapper[dstCode] : null;
-
-                        const labels = [];
-                        const rings = [];
-                        if (src != null) {
-                            labels.push({lat: src.lat, lon: src.lon, val: srcCode})
-                            // rings.push({lat: src.lat, lng: src.lon})
-                        }
-                        if (dst != null) {
-                            labels.push({lat: dst.lat, lon: dst.lon, val: dstCode})
-                            // rings.push({lat: dst.lat, lng: dst.lon})
-                        }
-
-                        globe.labelsData(labels);
-                        // globe.ringsData(rings);
-                        globe.arcsData([])
-
-                        if (srcCode != null && dstCode != null) {
-                            fetch(`route?srcCode=${srcCode}&dstCode=${dstCode}&limited=${limited}`)
-                                .then(response => response.json())
-                                .then(route => {
-                                    globe.arcsData(route.moves)
-                                    const labels = [];
-                                    labels.push({lat: src.lat, lon: src.lon, val: srcCode})
-                                    for (let idx = 1; idx < route.moves.length; ++idx) {
-                                        const move = route.moves[idx];
-                                        labels.push({lat: move.src.lat, lon: move.src.lon, val: ""})
-                                    }
-                                    labels.push({lat: dst.lat, lon: dst.lon, val: dstCode})
-                                    globe.labelsData(labels);
-                                    globe.pointOfView({altitude: 1}, 2000); // todo: midpoint
-                                })
-                        } else if (srcCode != null) {
-                            globe.pointOfView({lat: src.lat, lng: src.lon, altitude: 0.5}, 2000);
-                        } else {
-                            globe.pointOfView({lat: dst.lat, lng: dst.lon, altitude: 0.5}, 2000);
-                        }
+                        update();
                     }
                 });
             }
