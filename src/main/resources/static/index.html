@@ -40,7 +40,22 @@
 <div id="globeViz"></div>
 
 <script>
-    let srcCode = null, dstCode = null, limited = false;
+    let srcCode = null, dstCode = null, limited = false, route = null;
+
+    const update = () => {
+        if (srcCode != null && dstCode != null) {
+            fetch(`route?srcCode=${srcCode}&dstCode=${dstCode}&limited=${limited}`)
+                .then(response => response.json())
+                .then(r => {
+                    route = r;
+                    redraw();
+                });
+        } else {
+            route = null;
+        }
+        redraw();
+    };
+
     const codeMapper = {};
     const globe = Globe()($('#globeViz')[0])
         .globeImageUrl('img/earth-night.jpg')
@@ -79,7 +94,7 @@
         .labelsTransitionDuration(0)
 
         .ringColor(() => t => `rgba(255,100,50,${Math.sqrt(1 - t)})`)
-        .ringMaxRadius(5)
+        .ringMaxRadius(20)
         .ringPropagationSpeed(10)
         .ringRepeatPeriod(2000)
 
@@ -100,41 +115,91 @@
     $('#limit-selectized').attr('readonly', 'readonly');
     // todo: hand cursor
 
-    const update = function () {
+    const degreesToRadians = degrees => degrees * Math.PI / 180;
+
+    const radiansToDegrees = radians => radians * (180 / Math.PI);
+
+    const midpoint = (lat1, lon1, lat2, lon2) => {
+        let dLon = degreesToRadians(lon2 - lon1);
+
+        //convert to radians
+        lat1 = degreesToRadians(lat1);
+        lat2 = degreesToRadians(lat2);
+        lon1 = degreesToRadians(lon1);
+
+        let Bx = Math.cos(lat2) * Math.cos(dLon);
+        let By = Math.cos(lat2) * Math.sin(dLon);
+        let lat3 = Math.atan2(Math.sin(lat1) + Math.sin(lat2), Math.sqrt((Math.cos(lat1) + Bx) * (Math.cos(lat1) + Bx) + By * By));
+        let lon3 = lon1 + Math.atan2(By, Math.cos(lat1) + Bx);
+        return {lat: radiansToDegrees(lat3), lon: radiansToDegrees(lon3)};
+    };
+
+    const middlePoint = function (lat1, lng1, lat2, lng2) {
+
+        //-- Longitude difference
+        var dLng = degreesToRadians(lng2 - lng1);
+
+        //-- Convert to radians
+        lat1 = degreesToRadians(lat1);
+        lat2 = degreesToRadians(lat2);
+        lng1 = degreesToRadians(lng1);
+
+        var bX = Math.cos(lat2) * Math.cos(dLng);
+        var bY = Math.cos(lat2) * Math.sin(dLng);
+        var lat3 = Math.atan2(Math.sin(lat1) + Math.sin(lat2), Math.sqrt((Math.cos(lat1) + bX) * (Math.cos(lat1) + bX) + bY * bY));
+        var lng3 = lng1 + Math.atan2(bY, Math.cos(lat1) + bX);
+
+        //-- Return result
+        return {lat: radiansToDegrees(lat3), lon: radiansToDegrees(lng3)};
+    }
+
+    const redraw = () => {
         const src = srcCode != null ? codeMapper[srcCode] : null;
         const dst = dstCode != null ? codeMapper[dstCode] : null;
 
         const labels = [];
-        if (src != null) {
+        const moves = [];
+        const rings = [];
+        let cameraLat, cameraLon, cameraAlt;
+
+        if (srcCode != null && dstCode != null) {
             labels.push({lat: src.lat, lon: src.lon, val: srcCode})
-        }
-        if (dst != null) {
+            if (route != null) {
+                for (let idx = 1; idx < route.moves.length; ++idx) {
+                    const move = route.moves[idx];
+                    labels.push({lat: move.src.lat, lon: move.src.lon, val: ""})
+                }
+                moves.push(...route.moves);
+            }
             labels.push({lat: dst.lat, lon: dst.lon, val: dstCode})
+
+            const midpoin = middlePoint(src.lat, src.lon, dst.lat, dst.lon);
+            rings.push({lat: midpoin.lat, lng: midpoin.lon})
+
+            cameraLat = midpoin.lat;
+            cameraLon = midpoin.lon;
+            cameraAlt = 2;
+        } else if (srcCode != null) {
+            labels.push({lat: src.lat, lon: src.lon, val: srcCode})
+            cameraLat = src.lat;
+            cameraLon = src.lon;
+            cameraAlt = 0.5;
+        } else if (dstCode != null) {
+            labels.push({lat: dst.lat, lon: dst.lon, val: dstCode})
+            cameraLat = dst.lat;
+            cameraLon = dst.lon;
+            cameraAlt = 0.5;
+        } else {
+            cameraLat = 59.4
+            cameraLon = 24.8;
+            cameraAlt = 2;
         }
 
         globe.labelsData(labels);
-        globe.arcsData([])
+        globe.arcsData(moves)
+        globe.ringsData(rings);
 
-        if (srcCode != null && dstCode != null) {
-            fetch(`route?srcCode=${srcCode}&dstCode=${dstCode}&limited=${limited}`)
-                .then(response => response.json())
-                .then(route => {
-                    globe.arcsData(route.moves)
-                    const labels = [];
-                    labels.push({lat: src.lat, lon: src.lon, val: srcCode})
-                    for (let idx = 1; idx < route.moves.length; ++idx) {
-                        const move = route.moves[idx];
-                        labels.push({lat: move.src.lat, lon: move.src.lon, val: ""})
-                    }
-                    labels.push({lat: dst.lat, lon: dst.lon, val: dstCode})
-                    globe.labelsData(labels);
-                    globe.pointOfView({altitude: 1}, 2000); // todo: midpoint
-                })
-        } else if (srcCode != null) {
-            globe.pointOfView({lat: src.lat, lng: src.lon, altitude: 0.5}, 2000);
-        } else {
-            globe.pointOfView({lat: dst.lat, lng: dst.lon, altitude: 0.5}, 2000);
-        }
+        globe.pointOfView({lat: cameraLat, lon: cameraLon, altitude: cameraAlt}, 2000);
     }
 
     fetch('airports')
