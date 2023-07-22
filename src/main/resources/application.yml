@@ -1,4 +1,4 @@
-server.port: 8080
+server.port: 40075
 
 datasets:
   airports: classpath:data/airports.dat

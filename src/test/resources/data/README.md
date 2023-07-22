@@ -8,4 +8,10 @@ I used 4 airports for the sake of testing:
 
 TLL -> CCE4 - not found
 
-TLL -> BUZ - roads
+TLL -> BUZ, AGV, BIAR, BISF - roads
+
+AAP -4 len
+ABE - 4 len, ends with road
+
+AHU -2 fl, 2 roads
+ASP -road, far , 4 legs
