@@ -48,6 +48,15 @@
     const update = () => {
         if (srcCode != null && dstCode != null) {
             fetch(`routes/shortest?srcCode=${srcCode}&dstCode=${dstCode}&limited=${limited}`)
+                .catch(e => {
+                    route = null;
+                    redraw();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Seems that the server is down'
+                    })
+                })
                 .then(response => {
                     if (response.ok) return response.json();
                     const status = response.status;
@@ -182,7 +191,7 @@
             if (debug) rings.push({lat: mid.lat, lng: mid.lon})
             cameraLat = mid.lat;
             cameraLon = mid.lon;
-            cameraAlt = kmDistance(src.lat, src.lon, dst.lat, dst.lon) / 6000;
+            cameraAlt = kmDistance(src.lat, src.lon, dst.lat, dst.lon) / 5000;
         } else if (srcCode != null) {
             labels.push({lat: src.lat, lon: src.lon, val: srcCode})
             cameraLat = src.lat;
