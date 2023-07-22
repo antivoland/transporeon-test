@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/antivoland/transporeon-test/workflows/build/badge.svg)](https://github.com/antivoland/transporeon-test/actions/workflows/build.yml)
 
-Check the task description [here](TASK.md). We need to find a route between two airports. This route shouldn't contain more than 4 flights. It is also possible to move between airports by land if the distance between them is less than 100 km, however these changes cannot be made more than once in a row.
+Check the task description [here](TASK.md). We need to find a shortest route between two airports. This route shouldn't contain more than 4 flights. It is also possible to move between airports by land if the distance between them is less than 100 km, however these changes cannot be made more than once in a row.
 
 I [started](https://github.com/antivoland/transporeon-test/tree/typescript) with the implementation using TypeScript, but soon I realized that I would not be able to meet any deadlines, since I was not used to building backends with this stack, and the algorithmic task itself is quite complicated. So I've decided to focus on the solution using Java.
 
