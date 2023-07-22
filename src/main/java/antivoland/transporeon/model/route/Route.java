@@ -4,7 +4,7 @@ import lombok.ToString;
 
 @ToString
 public class Route {
-    public final Stop[] stops;
+    public final Stop[] stops; // todo: just src and dst spots
     public final Move[] moves;
     public final double kmDistance;
 

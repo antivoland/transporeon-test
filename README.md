@@ -20,11 +20,29 @@ And then run the application server as follows:
 make run
 ```
 
-I created UI part in a fast and rather dirty manner, however the result looks awesome.
+I created UI part in a fast and simple manner, however the result looks awesome (I used there [Globe.GL](https://github.com/vasturiano/globe.gl), [Selectize.js](https://github.com/selectize/selectize.js) and [sweetalert2](https://github.com/sweetalert2/sweetalert2)).
 
 https://github.com/antivoland/transporeon-test/assets/3669979/29915220-8819-4e6f-87e7-20d97aea014f
 
 Open `localhost:40075` in your browser to access the UI. It allows to select source and destination airports by IATA or ICAO codes or simply by name. You can search for routes using the original task constraint (4 flights maximum) or search for routes of any length. There are also two display themes to choose from, dark and light.
+
+## Main algorithm
+
+The existence of single ground runs makes impossible to apply a pure shortest route searching algorithm. So I introduced virtual nodes of two types: entered by air and entered by ground. If some route ends with a virtual node entered by ground, then the next move can only be made by air.
+
+The algorithm is an extension of Dijkstra's one with a Fibonacci heap. We still pick the shortest route on every step, traverse its neighbors and so on. And the proof of correctness is about the same.
+
+I only want to outline why we can stop searching once we have reached any of the virtual destination nodes. Same logic, if the route between source and the second virtual node is shorter, then the algorithm will reach it first.
+
+## Segmentation
+
+Calculating the distance between two points is a rather expensive operation. For a dataset of more than 7000 airports, a parallelized brute force method to determine all ground routes between airports within a radius of 100 km can take a minute. This is a bit annoying as I would also like to use datasets not only at runtime but also in tests.
+
+So let's split the Earth into segments as follows:
+
+![Sectors](sectors.png)
+
+There are regular and pole segments. For each given segment, I can find an environment consisting of other segments that have points closer than 100 km to any possible point within that segment. There is a special behaviour for getting an environment for pole sectors, however the implementation is clean and self-descriptive, so I won't go into details here.
 
 ## Datasets
 
@@ -56,21 +74,3 @@ I've found suitable [datasets](https://openflights.org/data.html) at openflights
   * **Equipment**, 3-letter codes for plane type(s) generally used on this flight, separated by spaces
 
 These datasets are widely used, [here](https://www.kaggle.com/datasets/elmoallistair/airlines-airport-and-routes?select=airports.csv) and [here](https://www.kaggle.com/datasets/elmoallistair/airlines-airport-and-routes?select=routes.csv) you'll find some stats for each field.
-
-## Segmentation
-
-Calculating the distance between two points is a rather expensive operation. For a dataset of more than 7000 airports, a parallelized brute force method to determine all ground routes between airports within a radius of 100 km can take a minute. This is a bit annoying as I would also like to use datasets not only at runtime but also in tests.
-
-So let's split the Earth into segments as follows:
-
-![Sectors](sectors.png)
-
-There are regular and pole segments. For each given segment, I can find an environment consisting of other segments that have points closer than 100 km to any possible point within that segment. There is a special behaviour for getting an environment for pole sectors, however the implementation is clean and self-descriptive, so I won't go into details here.
-
-## Main idea
-
-The existence of single ground runs makes impossible to apply a pure shortest route searching algorithm. So I introduced virtual nodes of two types: entered by air and entered by ground. If some route ends with a virtual node entered by ground, then the next move can only be made by air.
-
-The algorithm is an extension of Dijkstra's one with a Fibonacci heap. We still pick the shortest route on every step, traverse its neighbors and so on. And the proof of correctness is about the same.
-
-I only want to outline why we can stop searching once we have reached any of the virtual destination nodes. Same logic, if the route between source and the second virtual node is shorter, then the algorithm will reach it first.
