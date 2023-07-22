@@ -20,8 +20,10 @@
     <script type="text/javascript" src="js/globe.gl.min.js"></script>
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
     <script type="text/javascript" src="js/selectize.min.js"></script>
+    <script type="text/javascript" src="js/sweetalert2.min.js"></script>
 
     <link rel="stylesheet" href="css/selectize.default.css">
+    <link rel="stylesheet" href="css/sweetalert2.minimal.css">
 </head>
 
 <body>
@@ -46,7 +48,17 @@
     const update = () => {
         if (srcCode != null && dstCode != null) {
             fetch(`route?srcCode=${srcCode}&dstCode=${dstCode}&limited=${limited}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (response.ok) return response.json();
+                    const status = response.status;
+                    return response.text().then(message => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: status,
+                            text: message
+                        })
+                    })
+                })
                 .then(r => {
                     route = r;
                     redraw();
