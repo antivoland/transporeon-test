@@ -22,7 +22,7 @@ make run
 
 I created a graphical interface in a fast and a simple manner, and the result looks awesome. Check the video below:
 
-https://github.com/antivoland/transporeon-test/assets/3669979/29915220-8819-4e6f-87e7-20d97aea014f
+https://github.com/antivoland/transporeon-test/assets/3669979/14264bc9-f03e-441e-8cc6-368d904645f8
 
 Open `localhost:40075` in your browser to access the UI. It allows to select source and destination airports by IATA or ICAO codes or simply by name. You can search for routes using the original task constraint (4 flights maximum) or search for routes of any length. There are also two display themes to choose from, dark and light.
 
