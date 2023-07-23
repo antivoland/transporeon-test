@@ -20,7 +20,7 @@ And then run the application server as follows:
 make run
 ```
 
-I created a graphical interface in a fast and a simple manner, and the result looks awesome (used there [Globe.GL](https://github.com/vasturiano/globe.gl), [Selectize.js](https://github.com/selectize/selectize.js) and [sweetalert2](https://github.com/sweetalert2/sweetalert2)).
+I created a graphical interface in a fast and a simple manner, and the result looks awesome (used there [Globe.GL](https://github.com/vasturiano/globe.gl), [Selectize.js](https://github.com/selectize/selectize.js) and [sweetalert2](https://github.com/sweetalert2/sweetalert2)). Check the video below:
 
 https://github.com/antivoland/transporeon-test/assets/3669979/29915220-8819-4e6f-87e7-20d97aea014f
 
