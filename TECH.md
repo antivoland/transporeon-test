@@ -1,3 +1,22 @@
+# Tech specification
+
+This project consists of a backend written in Java and a simple JavaScript frontend.
+
+## Backend
+
+* [Spring Boot](https://github.com/spring-projects/spring-boot)
+* [Geodesy](https://github.com/mgavaghan/geodesy)
+* [Guava](https://github.com/google/guava)
+* [JHeaps](https://github.com/d-michail/jheaps)
+* [Jackson](https://github.com/FasterXML/jackson)
+* [Lombok](https://github.com/projectlombok/lombok)
+
+## Frontend
+
+* [Globe.GL](https://github.com/vasturiano/globe.gl)
+* [Selectize.js](https://github.com/selectize/selectize.js)
+* [sweetalert2](https://github.com/sweetalert2/sweetalert2)
+
 # Test datasets
 
 I used 4 airports for the sake of testing:

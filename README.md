@@ -4,7 +4,7 @@
 
 Check the task description [here](TASK.md). We need to find a shortest route between two airports. This route shouldn't contain more than 4 flights. It is also possible to move between airports by land if the distance between them is less than 100 km, however these changes cannot be made more than once in a row.
 
-I [started](https://github.com/antivoland/transporeon-test/tree/typescript) with the implementation using TypeScript, but soon I realized that I would not be able to meet any deadlines, since I was not used to building backends with this stack, and the algorithmic task itself is quite complicated. So I've decided to focus on the solution using Java.
+I [started](https://github.com/antivoland/transporeon-test/tree/typescript) with the implementation using TypeScript, but soon I realized that I would not be able to meet any deadlines, since I was not used to building backends with this stack, and the algorithmic task itself is quite complicated. So I've decided to focus on the solution using Java. Check the project specification [here](TECH.md).
 
 ## Run
 
@@ -20,7 +20,7 @@ And then run the application server as follows:
 make run
 ```
 
-I created a graphical interface in a fast and a simple manner, and the result looks awesome (used there [Globe.GL](https://github.com/vasturiano/globe.gl), [Selectize.js](https://github.com/selectize/selectize.js) and [sweetalert2](https://github.com/sweetalert2/sweetalert2)). Check the video below:
+I created a graphical interface in a fast and a simple manner, and the result looks awesome. Check the video below:
 
 https://github.com/antivoland/transporeon-test/assets/3669979/29915220-8819-4e6f-87e7-20d97aea014f
 
@@ -30,7 +30,7 @@ Open `localhost:40075` in your browser to access the UI. It allows to select sou
 
 The existence of single ground runs makes it impossible to use a pure shortest route searching algorithm. So I introduced virtual nodes of two types: entered by air and entered by ground. If some route ends with a virtual node entered by ground, then the next move can only be made by air.
 
-The algorithm is an extension of Dijkstra's one with a Fibonacci [heap](https://github.com/d-michail/jheaps). We still pick the shortest route on every step, traverse its neighbors and so on. And the proof of correctness is about the same.
+The algorithm is an extension of Dijkstra's one with a Fibonacci heap. We still pick the shortest route on every step, traverse its neighbors and so on. And the proof of correctness is about the same.
 
 I only want to outline why we can stop searching once we have reached any of the virtual destination nodes. Same logic, if there is a route between source and the second virtual node, that is shorter, then the algorithm will reach it first.
 
