@@ -30,7 +30,7 @@ Open `localhost:40075` in your browser to access the UI. It allows to select sou
 
 The existence of single ground runs makes it impossible to use a pure shortest route searching algorithm. So I introduced virtual nodes of two types: entered by air and entered by ground. If some route ends with a virtual node entered by ground, then the next move can only be made by air.
 
-The algorithm is an extension of Dijkstra's one with a Fibonacci heap. We still pick the shortest route on every step, traverse its neighbors and so on. And the proof of correctness is about the same.
+The algorithm is an extension of Dijkstra's one with a Fibonacci [heap](https://github.com/d-michail/jheaps). We still pick the shortest route on every step, traverse its neighbors and so on. And the proof of correctness is about the same.
 
 I only want to outline why we can stop searching once we have reached any of the virtual destination nodes. Same logic, if there is a route between source and the second virtual node, that is shorter, then the algorithm will reach it first.
 
