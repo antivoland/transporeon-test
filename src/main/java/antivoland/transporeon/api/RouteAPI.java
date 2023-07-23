@@ -2,7 +2,6 @@ package antivoland.transporeon.api;
 
 import antivoland.transporeon.exception.RouteNotFoundException;
 import antivoland.transporeon.exception.SpotNotFoundException;
-import antivoland.transporeon.model.Code;
 import antivoland.transporeon.model.Router;
 import antivoland.transporeon.model.route.Route;
 import org.springframework.web.bind.annotation.*;
