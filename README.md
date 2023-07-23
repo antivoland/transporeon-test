@@ -74,3 +74,7 @@ I've found suitable [datasets](https://openflights.org/data.html) at openflights
   * **Equipment**, 3-letter codes for plane type(s) generally used on this flight, separated by spaces
 
 These datasets are widely used, [here](https://www.kaggle.com/datasets/elmoallistair/airlines-airport-and-routes?select=airports.csv) and [here](https://www.kaggle.com/datasets/elmoallistair/airlines-airport-and-routes?select=routes.csv) you'll find some stats for each field.
+
+## Test coverage
+
+I only focused on testing crucial parts of the solution and briefly introduced some other tests.
