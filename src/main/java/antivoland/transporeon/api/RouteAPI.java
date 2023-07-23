@@ -22,7 +22,7 @@ public class RouteAPI {
     Route route(@RequestParam(value = "srcCode") String srcCode,
                 @RequestParam(value = "dstCode") String dstCode,
                 @RequestParam(value = "limited", defaultValue = "true") boolean limited) {
-        return router.findShortestRoute(Code.code(srcCode), Code.code(dstCode), limited);
+        return router.findShortestRoute(srcCode, dstCode, limited);
     }
 
     @ResponseStatus(NOT_FOUND)

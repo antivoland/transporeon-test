@@ -1,44 +1,38 @@
 package antivoland.transporeon.model.route;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.ToString;
 
 @ToString
 public class Route {
-    public final Stop[] stops; // todo: just src and dst spots
     public final Move[] moves;
     public final double kmDistance;
+    @JsonIgnore
+    public final Stop lastStop;
 
-    public Route(Stop firstStop) {
-        this(new Stop[]{firstStop}, new Move[]{});
+    public Route(int srcId) {
+        this(new Move[0], Stop.first(srcId));
     }
 
-    public Stop lastStop() {
-        return stops[stops.length - 1];
-    }
-
-    private Route(Stop[] stops, Move[] moves) {
-        this.stops = stops;
+    private Route(Move[] moves, Stop lastStop) {
         this.moves = moves;
         double kmDistance = 0;
         for (Move move : moves) {
             kmDistance += move.kmDistance;
         }
         this.kmDistance = kmDistance;
+        this.lastStop = lastStop;
     }
 
     public boolean canMove(Move move) {
-        return lastStop().type != StopType.ENTERED_BY_GROUND || move.type != MoveType.BY_GROUND;
+        return lastStop.type != StopType.ENTERED_BY_GROUND || move.type != MoveType.BY_GROUND;
     }
 
     public Route move(Move move) {
-        Stop[] newStops = new Stop[stops.length + 1];
-        System.arraycopy(stops, 0, newStops, 0, stops.length);
-        newStops[stops.length] = Stop.enteredBy(move);
-
-        Move[] newMoves = new Move[moves.length + 1];
-        System.arraycopy(moves, 0, newMoves, 0, moves.length);
-        newMoves[moves.length] = move;
-        return new Route(newStops, newMoves);
+        Move[] moves = new Move[this.moves.length + 1];
+        System.arraycopy(this.moves, 0, moves, 0, this.moves.length);
+        moves[this.moves.length] = move;
+        return new Route(moves, Stop.enteredBy(move));
     }
 
     public int numberOfFlights() {

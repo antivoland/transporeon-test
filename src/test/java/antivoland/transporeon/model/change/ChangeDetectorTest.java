@@ -62,7 +62,7 @@ class ChangeDetectorTest {
 
         assertThat(segmentationBasedChangeIds.equals(bruteForceChangeIds))
                 .withFailMessage(() -> "Brute force and a segmentation-based approach produce different changes")
-                .isTrue(); // todo: few corner spots are not detected as changes
+                .isTrue();
     }
 
     static Set<ChangeId> detectChanges(Supplier<ChangeDetector> detector, Collection<Spot> spots) {

@@ -17,6 +17,14 @@ This project consists of a backend written in Java and a simple JavaScript front
 * [Selectize.js](https://github.com/selectize/selectize.js)
 * [sweetalert2](https://github.com/sweetalert2/sweetalert2)
 
+## Video
+
+I recorded the video demonstrating UI with a screen recorder and compressed using the following magic:
+
+```
+ffmpeg -i ui.720p.mov -f mp4 -vcodec libx264 -preset fast -profile:v main -acodec aac ui.mp4
+```
+
 # Test datasets
 
 I used 4 airports for the sake of testing:
@@ -58,4 +66,15 @@ dst: buz
 dst: null
 src: null
 
-ffmpeg -i ui.720p.mov -f mp4 -vcodec libx264 -preset fast -profile:v main -acodec aac output.mp4
+ffmpeg -i ui.720p.mov -f mp4 -vcodec libx264 -preset fast -profile:v main -acodec aac ui.mp4
+
+
+grep 'LYR' routes.dat --color=always
+
+grep -E '^.*,[A-Za-z0-9]{3,4},.*,(LYR|ENSB),.*$' routes.dat
+
+grep -E '^.*,(TLL|EETN),.*,(OSL|ENGM|TOS/ENTC),.*$' routes.dat
+
+
+grep -E '^.*(TLL|EETN).*(OSL|TOS).*$' routes.dat
+grep '^(.*?)[LYR](.*?)$' routes.dat --color=always

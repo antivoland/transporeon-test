@@ -1,12 +1,14 @@
 package antivoland.transporeon.model.change;
 
-import antivoland.transporeon.model.Code;
 import antivoland.transporeon.model.Spot;
 import antivoland.transporeon.model.change.ChangeDetectorTest.ChangeId;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
+import static antivoland.transporeon.model.CodeTest.codes;
 import static antivoland.transporeon.model.change.ChangeDetectorTest.MAX_DISTANCE_KM;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,15 +47,5 @@ class SegmentationBasedChangeDetectorTest {
                 new ChangeId(4544, 4547),
                 new ChangeId(4547, 4543),
                 new ChangeId(4547, 4544)));
-    }
-
-    static Set<Code> codes(String... values) {
-        Set<Code> codes = Arrays
-                .stream(values)
-                .map(Code::code)
-                .filter(Objects::nonNull)
-                .collect(toSet());
-        assertThat(codes).hasSameSizeAs(values);
-        return codes;
     }
 }

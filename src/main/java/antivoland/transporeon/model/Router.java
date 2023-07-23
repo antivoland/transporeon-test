@@ -10,6 +10,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+
+import static java.lang.String.format;
 
 @Component
 public class Router {
@@ -21,11 +24,20 @@ public class Router {
         this.world = world;
     }
 
-    public Route findShortestRoute(Code srcCode, Code dstCode) {
+    public Route findShortestRoute(String srcCode, String dstCode) {
         return findShortestRoute(srcCode, dstCode, true);
     }
 
-    public Route findShortestRoute(Code srcCode, Code dstCode, boolean limited) {
+    public Route findShortestRoute(String srcCode, String dstCode, boolean limited) {
+        return findShortestRoute(
+                Optional.ofNullable(Code.code(srcCode)).orElseThrow(() ->
+                        new IllegalArgumentException(format("SRC code %s is invalid", srcCode))),
+                Optional.ofNullable(Code.code(dstCode)).orElseThrow(() ->
+                        new IllegalArgumentException(format("DST code %s is invalid", dstCode))),
+                limited);
+    }
+
+    private Route findShortestRoute(Code srcCode, Code dstCode, boolean limited) {
         if (srcCode == null) throw new IllegalArgumentException("SRC code is missing");
         if (dstCode == null) throw new IllegalArgumentException("DST code is missing");
         Spot src = world.spot(srcCode);
@@ -38,17 +50,17 @@ public class Router {
     private Route findShortestRoute(Spot src, Spot dst, boolean limited) {
         AddressableHeap<Double, Route> heap = new FibonacciHeap<>();
         Map<Stop, AddressableHeap.Handle<Double, Route>> seen = new HashMap<>();
-        seen.put(Stop.first(src.id), heap.insert(0d, new Route(Stop.first(src.id))));
+        seen.put(Stop.first(src.id), heap.insert(0d, new Route(src.id)));
 
         while (!heap.isEmpty()) {
             AddressableHeap.Handle<Double, Route> min = heap.deleteMin();
             Route minRoute = min.getValue();
-            Stop minStop = minRoute.lastStop();
+            Stop minStop = minRoute.lastStop;
             if (minStop.spotId == dst.id) return minRoute;
             for (Move move : world.outgoingMoves(minStop.spotId)) {
                 if (!minRoute.canMove(move)) continue;
                 Route route = minRoute.move(move);
-                Stop stop = route.lastStop();
+                Stop stop = route.lastStop;
                 if (limited && route.numberOfFlights() > MAX_NUMBER_OF_FLIGHTS) continue;
                 AddressableHeap.Handle<Double, Route> stopHandle = seen.get(stop);
                 if (stopHandle == null) {
