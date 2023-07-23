@@ -1,4 +1,0 @@
-airline-routes
-earth-shield, tiles (segmentation)
-emit-arcs-on-click (interactions)
-html-markers
