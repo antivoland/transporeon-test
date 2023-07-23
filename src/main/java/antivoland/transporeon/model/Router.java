@@ -5,6 +5,7 @@ import antivoland.transporeon.model.route.Move;
 import antivoland.transporeon.model.route.Route;
 import antivoland.transporeon.model.route.Stop;
 import org.jheaps.AddressableHeap;
+import org.jheaps.AddressableHeap.Handle;
 import org.jheaps.tree.FibonacciHeap;
 import org.springframework.stereotype.Component;
 
@@ -49,11 +50,11 @@ public class Router {
 
     private Route findShortestRoute(Spot src, Spot dst, boolean limited) {
         AddressableHeap<Double, Route> heap = new FibonacciHeap<>();
-        Map<Stop, AddressableHeap.Handle<Double, Route>> seen = new HashMap<>();
+        Map<Stop, Handle<Double, Route>> seen = new HashMap<>();
         seen.put(Stop.first(src.id), heap.insert(0d, new Route(src.id)));
 
         while (!heap.isEmpty()) {
-            AddressableHeap.Handle<Double, Route> min = heap.deleteMin();
+            Handle<Double, Route> min = heap.deleteMin();
             Route minRoute = min.getValue();
             Stop minStop = minRoute.lastStop;
             if (minStop.spotId == dst.id) return minRoute;
@@ -62,7 +63,7 @@ public class Router {
                 Route route = minRoute.move(move);
                 Stop stop = route.lastStop;
                 if (limited && route.numberOfFlights() > MAX_NUMBER_OF_FLIGHTS) continue;
-                AddressableHeap.Handle<Double, Route> stopHandle = seen.get(stop);
+                Handle<Double, Route> stopHandle = seen.get(stop);
                 if (stopHandle == null) {
                     stopHandle = heap.insert(route.kmDistance, route);
                     seen.put(stop, stopHandle);
