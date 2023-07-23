@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 class RouterTest {
-    static final double EPSILON = 10e-6;
+    static final double EPSILON = 1e-6;
 
     @Autowired
     Router router;
