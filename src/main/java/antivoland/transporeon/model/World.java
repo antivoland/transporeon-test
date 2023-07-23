@@ -54,6 +54,7 @@ public class World {
                         && codeMapper.containsKey(route.dstAirportCode)
                         && !route.srcAirportCode.equals(route.dstAirportCode))
                 .forEach(route -> {
+                    // todo: filter duplicates
                     Spot src = spots.get(codeMapper.get(route.srcAirportCode));
                     Spot dst = spots.get(codeMapper.get(route.dstAirportCode));
                     Move move = Move.byAir(src, dst, kmDistance(src, dst));

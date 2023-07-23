@@ -14,6 +14,8 @@ import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 class RouterTest {
+    static final double EPSILON = 10e-6;
+
     @Autowired
     Router router;
 
@@ -41,25 +43,25 @@ class RouterTest {
      */
     @ParameterizedTest
     @CsvSource({"TLL,LYR", "TLL,ENSB", "EETN,LYR", "EETN,ENSB"})
-    void testLimitedTravelToSvalbard(String srcCode, String dstCode) {
-        Route route = router.findShortestRoute(srcCode, dstCode);
-        assertThat(route).isNotNull();
-        assertThat(route.moves).isNotNull().hasSize(3);
+    void testTravelToSvalbard(String srcCode, String dstCode) {
+        Route limited = router.findShortestRoute(srcCode, dstCode);
+        assertThat(limited).isNotNull();
+        assertThat(limited.moves).isNotNull().hasSize(3);
 
-        assertThat(route.moves[0].type).isEqualTo(MoveType.BY_AIR);
-        assertThat(route.moves[0].src.codes).isEqualTo(codes("TLL", "EETN"));
-        assertThat(route.moves[0].dst.codes).isEqualTo(codes("ARN", "ESSA"));
+        assertThat(limited.moves[0].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(limited.moves[0].src.codes).isEqualTo(codes("TLL", "EETN"));
+        assertThat(limited.moves[0].dst.codes).isEqualTo(codes("ARN", "ESSA"));
 
-        assertThat(route.moves[1].type).isEqualTo(MoveType.BY_AIR);
-        assertThat(route.moves[1].src.codes).isEqualTo(codes("ARN", "ESSA"));
-        assertThat(route.moves[1].dst.codes).isEqualTo(codes("TOS", "ENTC"));
+        assertThat(limited.moves[1].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(limited.moves[1].src.codes).isEqualTo(codes("ARN", "ESSA"));
+        assertThat(limited.moves[1].dst.codes).isEqualTo(codes("TOS", "ENTC"));
 
-        assertThat(route.moves[2].type).isEqualTo(MoveType.BY_AIR);
-        assertThat(route.moves[2].src.codes).isEqualTo(codes("TOS", "ENTC"));
-        assertThat(route.moves[2].dst.codes).isEqualTo(codes("LYR", "ENSB"));
+        assertThat(limited.moves[2].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(limited.moves[2].src.codes).isEqualTo(codes("TOS", "ENTC"));
+        assertThat(limited.moves[2].dst.codes).isEqualTo(codes("LYR", "ENSB"));
 
-        assertThat(router.findShortestRoute(srcCode, dstCode, false).kmDistance)
-                .isCloseTo(route.kmDistance, offset(0.01));
+        Route unlimited = router.findShortestRoute(srcCode, dstCode, false);
+        assertThat(unlimited.kmDistance).isCloseTo(limited.kmDistance, offset(EPSILON));
     }
 
     /*
@@ -74,36 +76,36 @@ class RouterTest {
      */
     @ParameterizedTest
     @CsvSource({"TLL,AAP", "TLL,KAAP", "EETN,AAP", "EETN,KAAP"})
-    void testLimitedTravelToAndrauAirpark(String srcCode, String dstCode) {
-        Route route = router.findShortestRoute(srcCode, dstCode);
-        assertThat(route).isNotNull();
-        assertThat(route.moves).isNotNull().hasSize(5);
+    void testTravelToAndrauAirpark(String srcCode, String dstCode) {
+        Route limited = router.findShortestRoute(srcCode, dstCode);
+        assertThat(limited).isNotNull();
+        assertThat(limited.moves).isNotNull().hasSize(5);
 
-        assertThat(route.moves[0].type).isEqualTo(MoveType.BY_AIR);
-        assertThat(route.moves[0].src.codes).isEqualTo(codes("TLL", "EETN"));
-        assertThat(route.moves[0].dst.codes).isEqualTo(codes("TRD", "ENVA"));
+        assertThat(limited.moves[0].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(limited.moves[0].src.codes).isEqualTo(codes("TLL", "EETN"));
+        assertThat(limited.moves[0].dst.codes).isEqualTo(codes("TRD", "ENVA"));
 
-        assertThat(route.moves[1].type).isEqualTo(MoveType.BY_AIR);
-        assertThat(route.moves[1].src.codes).isEqualTo(codes("TRD", "ENVA"));
-        assertThat(route.moves[1].dst.codes).isEqualTo(codes("KEF", "BIKF"));
+        assertThat(limited.moves[1].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(limited.moves[1].src.codes).isEqualTo(codes("TRD", "ENVA"));
+        assertThat(limited.moves[1].dst.codes).isEqualTo(codes("KEF", "BIKF"));
 
-        assertThat(route.moves[2].type).isEqualTo(MoveType.BY_AIR);
-        assertThat(route.moves[2].src.codes).isEqualTo(codes("KEF", "BIKF"));
-        assertThat(route.moves[2].dst.codes).isEqualTo(codes("YYZ", "CYYZ"));
+        assertThat(limited.moves[2].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(limited.moves[2].src.codes).isEqualTo(codes("KEF", "BIKF"));
+        assertThat(limited.moves[2].dst.codes).isEqualTo(codes("YYZ", "CYYZ"));
 
-        assertThat(route.moves[3].type).isEqualTo(MoveType.BY_AIR);
-        assertThat(route.moves[3].src.codes).isEqualTo(codes("YYZ", "CYYZ"));
-        assertThat(route.moves[3].dst.codes).isEqualTo(codes("IAH", "KIAH"));
+        assertThat(limited.moves[3].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(limited.moves[3].src.codes).isEqualTo(codes("YYZ", "CYYZ"));
+        assertThat(limited.moves[3].dst.codes).isEqualTo(codes("IAH", "KIAH"));
 
-        assertThat(route.moves[4].type).isEqualTo(MoveType.BY_GROUND);
-        assertThat(route.moves[4].src.codes).isEqualTo(codes("IAH", "KIAH"));
-        assertThat(route.moves[4].dst.codes).isEqualTo(codes("AAP", "KAAP"));
+        assertThat(limited.moves[4].type).isEqualTo(MoveType.BY_GROUND);
+        assertThat(limited.moves[4].src.codes).isEqualTo(codes("IAH", "KIAH"));
+        assertThat(limited.moves[4].dst.codes).isEqualTo(codes("AAP", "KAAP"));
 
-        double kmDistance = kmDistance(route.moves[0].src, route.moves[4].dst);
-        assertThat(route.kmDistance).isCloseTo(kmDistance, offset(60.0));
+        double kmDistance = kmDistance(limited.moves[0].src, limited.moves[4].dst);
+        assertThat(limited.kmDistance).isCloseTo(kmDistance, offset(60.0));
 
-        assertThat(router.findShortestRoute(srcCode, dstCode, false).kmDistance)
-                .isCloseTo(route.kmDistance, offset(0.01));
+        Route unlimited = router.findShortestRoute(srcCode, dstCode, false);
+        assertThat(unlimited.kmDistance).isCloseTo(limited.kmDistance, offset(EPSILON));
     }
 
     /*
@@ -113,35 +115,107 @@ class RouterTest {
      */
     @ParameterizedTest
     @CsvSource({"TLL,AGS", "TLL,KAGS", "EETN,AGS", "EETN,KAGS"})
-    void testUnlimitedTravelToAugustaRegionalAirport(String srcCode, String dstCode) {
-        Route route = router.findShortestRoute(srcCode, dstCode, false);
-        assertThat(route).isNotNull();
-        assertThat(route.moves).isNotNull().hasSize(5);
+    void testTravelToAugustaRegionalAirport(String srcCode, String dstCode) {
+        Route unlimited = router.findShortestRoute(srcCode, dstCode, false);
+        assertThat(unlimited).isNotNull();
+        assertThat(unlimited.moves).isNotNull().hasSize(5);
 
-        assertThat(route.moves[0].type).isEqualTo(MoveType.BY_AIR);
-        assertThat(route.moves[0].src.codes).isEqualTo(codes("TLL", "EETN"));
-        assertThat(route.moves[0].dst.codes).isEqualTo(codes("TRD", "ENVA"));
+        assertThat(unlimited.moves[0].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(unlimited.moves[0].src.codes).isEqualTo(codes("TLL", "EETN"));
+        assertThat(unlimited.moves[0].dst.codes).isEqualTo(codes("TRD", "ENVA"));
 
-        assertThat(route.moves[1].type).isEqualTo(MoveType.BY_AIR);
-        assertThat(route.moves[1].src.codes).isEqualTo(codes("TRD", "ENVA"));
-        assertThat(route.moves[1].dst.codes).isEqualTo(codes("KEF", "BIKF"));
+        assertThat(unlimited.moves[1].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(unlimited.moves[1].src.codes).isEqualTo(codes("TRD", "ENVA"));
+        assertThat(unlimited.moves[1].dst.codes).isEqualTo(codes("KEF", "BIKF"));
 
-        assertThat(route.moves[2].type).isEqualTo(MoveType.BY_AIR);
-        assertThat(route.moves[2].src.codes).isEqualTo(codes("KEF", "BIKF"));
-        assertThat(route.moves[2].dst.codes).isEqualTo(codes("IAD", "KIAD"));
+        assertThat(unlimited.moves[2].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(unlimited.moves[2].src.codes).isEqualTo(codes("KEF", "BIKF"));
+        assertThat(unlimited.moves[2].dst.codes).isEqualTo(codes("IAD", "KIAD"));
 
-        assertThat(route.moves[3].type).isEqualTo(MoveType.BY_AIR);
-        assertThat(route.moves[3].src.codes).isEqualTo(codes("IAD", "KIAD"));
-        assertThat(route.moves[3].dst.codes).isEqualTo(codes("CLT", "KCLT"));
+        assertThat(unlimited.moves[3].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(unlimited.moves[3].src.codes).isEqualTo(codes("IAD", "KIAD"));
+        assertThat(unlimited.moves[3].dst.codes).isEqualTo(codes("CLT", "KCLT"));
 
-        assertThat(route.moves[4].type).isEqualTo(MoveType.BY_AIR);
-        assertThat(route.moves[4].src.codes).isEqualTo(codes("CLT", "KCLT"));
-        assertThat(route.moves[4].dst.codes).isEqualTo(codes("AGS", "KAGS"));
+        assertThat(unlimited.moves[4].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(unlimited.moves[4].src.codes).isEqualTo(codes("CLT", "KCLT"));
+        assertThat(unlimited.moves[4].dst.codes).isEqualTo(codes("AGS", "KAGS"));
 
-        double kmDistance = kmDistance(route.moves[0].src, route.moves[4].dst);
-        assertThat(route.kmDistance).isCloseTo(kmDistance, offset(10.0));
+        double kmDistance = kmDistance(unlimited.moves[0].src, unlimited.moves[4].dst);
+        assertThat(unlimited.kmDistance).isCloseTo(kmDistance, offset(10.0));
 
         assertThatThrownBy(() -> router.findShortestRoute(srcCode, dstCode))
                 .isInstanceOf(RouteNotFoundException.class);
+    }
+
+    /*
+     Now let's use Antsirabato Airport as an example to demonstrate that the
+     limited route there from Tallinn contains fewer stops, but the route
+     distance is longer compared to the unlimited version.
+     */
+    @ParameterizedTest
+    @CsvSource({"TLL,ANM", "TLL,FMNH", "EETN,ANM", "EETN,FMNH"})
+    void testTravelToAntsirabatoAirport(String srcCode, String dstCode) {
+        Route unlimited = router.findShortestRoute(srcCode, dstCode, false);
+        assertThat(unlimited).isNotNull();
+        assertThat(unlimited.moves).isNotNull().hasSize(9);
+
+        assertThat(unlimited.moves[0].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(unlimited.moves[0].src.codes).isEqualTo(codes("TLL", "EETN"));
+        assertThat(unlimited.moves[0].dst.codes).isEqualTo(codes("KBP", "UKBB"));
+
+        assertThat(unlimited.moves[1].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(unlimited.moves[1].src.codes).isEqualTo(codes("KBP", "UKBB"));
+        assertThat(unlimited.moves[1].dst.codes).isEqualTo(codes("TLV", "LLBG"));
+
+        assertThat(unlimited.moves[2].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(unlimited.moves[2].src.codes).isEqualTo(codes("TLV", "LLBG"));
+        assertThat(unlimited.moves[2].dst.codes).isEqualTo(codes("ADD", "HAAB"));
+
+        assertThat(unlimited.moves[3].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(unlimited.moves[3].src.codes).isEqualTo(codes("ADD", "HAAB"));
+        assertThat(unlimited.moves[3].dst.codes).isEqualTo(codes("MBA", "HKMO"));
+
+        assertThat(unlimited.moves[4].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(unlimited.moves[4].src.codes).isEqualTo(codes("MBA", "HKMO"));
+        assertThat(unlimited.moves[4].dst.codes).isEqualTo(codes("HAH", "FMCH"));
+
+        assertThat(unlimited.moves[5].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(unlimited.moves[5].src.codes).isEqualTo(codes("HAH", "FMCH"));
+        assertThat(unlimited.moves[5].dst.codes).isEqualTo(codes("DZA", "FMCZ"));
+
+        assertThat(unlimited.moves[6].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(unlimited.moves[6].src.codes).isEqualTo(codes("DZA", "FMCZ"));
+        assertThat(unlimited.moves[6].dst.codes).isEqualTo(codes("DIE", "FMNA"));
+
+        assertThat(unlimited.moves[7].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(unlimited.moves[7].src.codes).isEqualTo(codes("DIE", "FMNA"));
+        assertThat(unlimited.moves[7].dst.codes).isEqualTo(codes("SVB", "FMNS"));
+
+        assertThat(unlimited.moves[8].type).isEqualTo(MoveType.BY_GROUND);
+        assertThat(unlimited.moves[8].src.codes).isEqualTo(codes("SVB", "FMNS"));
+        assertThat(unlimited.moves[8].dst.codes).isEqualTo(codes("ANM", "FMNH"));
+
+        Route limited = router.findShortestRoute(srcCode, dstCode);
+        assertThat(limited).isNotNull();
+        assertThat(limited.moves).isNotNull().hasSize(4);
+
+        assertThat(limited.moves[0].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(limited.moves[0].src.codes).isEqualTo(codes("TLL", "EETN"));
+        assertThat(limited.moves[0].dst.codes).isEqualTo(codes("IST", "LTFM"));
+
+        assertThat(limited.moves[1].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(limited.moves[1].src.codes).isEqualTo(codes("IST", "LTFM"));
+        assertThat(limited.moves[1].dst.codes).isEqualTo(codes("NBO", "HKJK"));
+
+        assertThat(limited.moves[2].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(limited.moves[2].src.codes).isEqualTo(codes("NBO", "HKJK"));
+        assertThat(limited.moves[2].dst.codes).isEqualTo(codes("TNR", "FMMI"));
+
+        assertThat(limited.moves[3].type).isEqualTo(MoveType.BY_AIR);
+        assertThat(limited.moves[3].src.codes).isEqualTo(codes("TNR", "FMMI"));
+        assertThat(limited.moves[3].dst.codes).isEqualTo(codes("ANM", "FMNH"));
+
+        assertThat(limited.kmDistance - unlimited.kmDistance)
+                .isCloseTo(500, offset(15.0));
     }
 }
