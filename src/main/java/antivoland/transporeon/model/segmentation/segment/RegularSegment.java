@@ -43,11 +43,11 @@ public class RegularSegment extends Segment {
     @Override
     protected Collection<Segment> sameSliceWesternSegments(double kmDelta) {
         Collection<Segment> segments = new ArrayList<>();
-        int lon = (westernmostLon - 1) % 360;
+        int lon = (180 + 360 + westernmostLon - 1) % 360 - 180;
         RegularSegment segment = slice.segmentFor(lon);
         while (kmDistanceToSameSliceWesternSegment(segment) < kmDelta) {
             segments.add(segment);
-            lon = (lon - 1) % 360;
+            lon = (180 + 360 + lon - 1) % 360 - 180;
             segment = slice.segmentFor(lon);
         }
         return segments;
@@ -67,7 +67,7 @@ public class RegularSegment extends Segment {
         RegularSegment segment = slice.segmentFor(lon);
         while (kmDistanceToSameSliceEasternSegment(segment) < kmDelta) {
             segments.add(segment);
-            lon = (lon + 1) % 360;
+            lon = (180 + lon + 1) % 360 - 180;
             segment = slice.segmentFor(lon);
         }
         return segments;

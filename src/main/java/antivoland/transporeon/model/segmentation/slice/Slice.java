@@ -23,7 +23,7 @@ public abstract class Slice<SEGMENT extends Segment> {
     }
 
     public final SEGMENT segmentFor(double lon) {
-        return segmentFor((int) lon);
+        return segmentFor((int) (180 + lon) - 180);
     }
 
     public abstract SEGMENT segmentFor(int lon);

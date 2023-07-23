@@ -6,8 +6,8 @@ This project consists of a backend written in Java and a simple JavaScript front
 
 * [Spring Boot](https://github.com/spring-projects/spring-boot)
 * [Geodesy](https://github.com/mgavaghan/geodesy)
-* [Guava](https://github.com/google/guava)
 * [JHeaps](https://github.com/d-michail/jheaps)
+* [Guava](https://github.com/google/guava)
 * [Jackson](https://github.com/FasterXML/jackson)
 * [Lombok](https://github.com/projectlombok/lombok)
 

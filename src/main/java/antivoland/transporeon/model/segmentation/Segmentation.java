@@ -30,7 +30,7 @@ public class Segmentation {
     }
 
     private Slice<? extends Segment> sliceFor(double lat) {
-        return sliceFor((int) lat);
+        return sliceFor((int) (90 + lat) - 90);
     }
 
     /*

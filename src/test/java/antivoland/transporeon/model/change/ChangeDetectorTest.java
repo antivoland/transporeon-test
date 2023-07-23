@@ -23,8 +23,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @SpringBootTest
-public class ChangeDetectorTest {
-    private static final double MAX_DISTANCE_KM = 100;
+class ChangeDetectorTest {
+    static final double MAX_DISTANCE_KM = 100;
 
     @Autowired
     AirportDataset airportDataset;
@@ -58,7 +58,7 @@ public class ChangeDetectorTest {
                 .isTrue(); // todo: few corner spots are not detected as changes
     }
 
-    private static Set<ChangeId> detectChanges(Supplier<ChangeDetector> detector, Collection<Spot> spots) {
+    static Set<ChangeId> detectChanges(Supplier<ChangeDetector> detector, Collection<Spot> spots) {
         Collection<Change> changes = detector.get().detect(spots, MAX_DISTANCE_KM);
         assertThat(changes).hasSizeGreaterThan(0);
         changes.forEach(change -> assertThat(change.kmDistance).isLessThan(MAX_DISTANCE_KM));
@@ -67,7 +67,7 @@ public class ChangeDetectorTest {
         return changeIds;
     }
 
-    private static Collection<Change> leftDiff(Set<ChangeId> left, Set<ChangeId> right, Map<Integer, Spot> spots) {
+    static Collection<Change> leftDiff(Set<ChangeId> left, Set<ChangeId> right, Map<Integer, Spot> spots) {
         return left
                 .stream()
                 .filter(changeId -> !right.contains(changeId))
@@ -81,9 +81,13 @@ public class ChangeDetectorTest {
         final int srcId;
         final int dstId;
 
-        public ChangeId(Change change) {
-            this.srcId = change.src.id;
-            this.dstId = change.dst.id;
+        ChangeId(Change change) {
+            this(change.src.id, change.dst.id);
+        }
+
+        ChangeId(int srcId, int dstId) {
+            this.srcId = srcId;
+            this.dstId = dstId;
         }
 
         Change change(Map<Integer, Spot> spots) {
