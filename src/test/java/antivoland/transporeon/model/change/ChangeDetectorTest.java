@@ -29,6 +29,13 @@ class ChangeDetectorTest {
     @Autowired
     AirportDataset airportDataset;
 
+    /*
+     The main change detector test, which compares outputs from the
+     parallelized brute force and segmentation-based method implementations.
+     The idea is that the approach based on brute force is simple, valid,
+     provides all the existing changes and its execution time isn't that long,
+     so the CI build will take about a minute, which is completely acceptable.
+     */
     @Test
     void test() {
         AtomicInteger nextId = new AtomicInteger(0);
